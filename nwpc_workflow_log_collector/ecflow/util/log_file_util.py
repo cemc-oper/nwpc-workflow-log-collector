@@ -15,6 +15,10 @@ def get_date_from_line(line):
 
 class EcflowLogFileUtil(object):
     @classmethod
+    def is_record_line(cls, log_line: str):
+        return True
+
+    @classmethod
     def get_line_no_range(cls, log_file_path, begin_date, end_date, max_line_no=1000):
         begin_line_no = 0
         end_line_no = 0
@@ -27,7 +31,7 @@ class EcflowLogFileUtil(object):
 
                 # if last line less then begin date, skip to next turn.
                 cur_pos = -1
-                cur_last_line = next_n_lines[-1]
+                cur_last_line = next_n_lines[cur_pos]
                 # while (-1 * cur_pos) < len(next_n_lines):
                 #     cur_last_line = next_n_lines[cur_pos]
                 #     if cur_last_line[0] == '#':

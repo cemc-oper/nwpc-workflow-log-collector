@@ -14,6 +14,10 @@ def get_date_from_line(line):
 
 
 class SmsLogFileUtil(object):
+    @classmethod
+    def is_record_line(cls, log_line: str):
+        return log_line.startswith('#')
+
     @staticmethod
     def get_line_no_range_old(log_file_path, begin_date, end_date):
         warnings.warn("this is deprecated, use get_line_no_range instead", DeprecationWarning)
@@ -22,7 +26,7 @@ class SmsLogFileUtil(object):
         with open(log_file_path) as log_file:
             cur_line = 0
             for line in log_file:
-                if not line.startswith('#'):
+                if not SmsLogFileUtil.is_record_line(line):
                     # some line is :
                     # check emergency
                     # so, just ignore it.
@@ -72,7 +76,7 @@ class SmsLogFileUtil(object):
                 cur_last_line = next_n_lines[-1]
                 while (-1 * cur_pos) < len(next_n_lines):
                     cur_last_line = next_n_lines[cur_pos]
-                    if cur_last_line[0] == '#':
+                    if SmsLogFileUtil.is_record_line(cur_last_line):
                         break
                     cur_pos -= 1
 
@@ -84,7 +88,7 @@ class SmsLogFileUtil(object):
                 # find first line greater or equal to begin_date
                 for i in range(0, len(next_n_lines)):
                     cur_line = next_n_lines[i]
-                    if cur_line[0] != '#':
+                    if not SmsLogFileUtil.is_record_line(cur_line):
                         continue
                     line_date = get_date_from_line(cur_line)
                     if line_date >= begin_date:
@@ -98,7 +102,7 @@ class SmsLogFileUtil(object):
                 # if begin_line_no == end_line_no, then there is no line returned.
                 for i in range(begin_line_no - 1, len(next_n_lines)):
                     cur_line = next_n_lines[i]
-                    if cur_line[0] != '#':
+                    if not SmsLogFileUtil.is_record_line(cur_line):
                         continue
                     line_date = get_date_from_line(cur_line)
                     if line_date >= end_date:
@@ -120,7 +124,7 @@ class SmsLogFileUtil(object):
                 cur_pos = -1
                 while (-1 * cur_pos) < len(next_n_lines):
                     cur_last_line = next_n_lines[cur_pos]
-                    if cur_last_line[0] == '#':
+                    if SmsLogFileUtil.is_record_line(cur_last_line):
                         break
                     cur_pos -= 1
 
@@ -133,7 +137,7 @@ class SmsLogFileUtil(object):
                 # find end_date
                 for i in range(0, len(next_n_lines)):
                     cur_line = next_n_lines[i]
-                    if cur_line[0] != '#':
+                    if not SmsLogFileUtil.is_record_line(cur_line):
                         continue
                     line_date = get_date_from_line(cur_line)
                     if line_date >= end_date:

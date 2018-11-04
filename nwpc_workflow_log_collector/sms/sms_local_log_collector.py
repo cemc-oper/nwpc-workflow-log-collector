@@ -54,7 +54,7 @@ def get_log_info_from_local_file(config_object: dict, owner: str, repo: str, log
 
 
 def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, file_path: str, verbose):
-    session = get_session(config['smslog_local_collector']['rdbms']['database_uri'])
+    session = get_session(config['sms_local_log_collector']['rdbms']['database_uri'])
 
     with open(file_path) as f:
         first_line = f.readline().strip()
@@ -90,7 +90,7 @@ def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, f
         commit_begin_line_no = cur_line_no
         for line in f:
             line = line.strip()
-            if line[0] != '#':
+            if not SmsLogFileUtil.is_record_line(line):
                 cur_line_no += 1
                 continue
             record = SmsRecord()
@@ -104,7 +104,7 @@ def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, f
             cur_line_no += 1
 
             session_count_to_be_committed += 1
-            if session_count_to_be_committed >= config['smslog_local_collector']['sms']['post']['max_count']:
+            if session_count_to_be_committed >= config['sms_local_log_collector']['sms']['post']['max_count']:
                 commit_end_line_no = cur_line_no
                 session.commit()
                 click.echo('[{time}] commit session, line range: [{begin_line_no}, {end_line_no}]'.format(
@@ -143,7 +143,7 @@ def collect_log_from_local_file_by_range(config: dict, owner_name: str, repo_nam
             f.readline()
 
         session_count_to_be_committed = 0
-        max_count = config['smslog_local_collector']['sms']['post']['max_count']
+        max_count = config['sms_local_log_collector']['sms']['post']['max_count']
         # max_count = 1
 
         cur_line_no = begin_line_no
@@ -151,7 +151,7 @@ def collect_log_from_local_file_by_range(config: dict, owner_name: str, repo_nam
         for i in range(begin_line_no, end_line_no):
             line = f.readline()
             line = line.strip()
-            if len(line) == 0 or line[0] != '#':
+            if not SmsLogFileUtil.is_record_line(line):
                 cur_line_no += 1
                 continue
             record = SmsRecord()
