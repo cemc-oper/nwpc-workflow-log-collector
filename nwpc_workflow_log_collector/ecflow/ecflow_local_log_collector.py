@@ -14,7 +14,7 @@ from nwpc_workflow_log_collector.ecflow.util.log_file_util import EcflowLogFileU
 
 def load_config(config_file_path):
     f = open(config_file_path, 'r')
-    config = yaml.load(f)
+    config = yaml.safe_load(f)
     f.close()
     return config
 
