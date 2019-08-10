@@ -9,6 +9,7 @@ from nwpc_workflow_log_model.rmdb.util.session import get_session
 from nwpc_workflow_log_model.rmdb.sms.record import SmsRecord
 from nwpc_workflow_log_model.rmdb.util.version_util import VersionUtil
 
+from nwpc_workflow_log_collector.base.log_file_util import get_log_info_from_local_file
 from nwpc_workflow_log_collector.sms.util.log_file_util import SmsLogFileUtil
 
 
@@ -19,42 +20,8 @@ def load_config(config_file_path):
     return config
 
 
-def get_log_info_from_local_file(config_object: dict, owner: str, repo: str, log_file: str, output_type):
-    with open(log_file) as f:
-        first_line = f.readline()
-        if first_line is None:
-            return {
-                'file_path': log_file,
-                'line_count': 0
-            }
-        first_record = SmsRecord()
-        first_record.parse(first_line)
-
-        cur_line_no = 1
-        cur_line = first_line
-        for line in f:
-            cur_line = line
-            cur_line_no += 1
-        last_record = SmsRecord()
-        last_record.parse(cur_line)
-        return {
-            'file_path': log_file,
-            'line_count': cur_line_no,
-            'range': {
-                'start': {
-                    'date': first_record.date.strftime('%Y-%m-%d'),
-                    'time': first_record.time.strftime('%H:%M:%S')
-                },
-                'end': {
-                    'date': last_record.date.strftime('%Y-%m-%d'),
-                    'time': last_record.time.strftime('%H:%M:%S')
-                }
-            }
-        }
-
-
 def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, file_path: str, verbose):
-    session = get_session(config['sms_local_log_collector']['rdbms']['database_uri'])
+    session = get_session(config['collector']['rdbms']['database_uri'])
 
     with open(file_path) as f:
         first_line = f.readline().strip()
@@ -104,7 +71,7 @@ def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, f
             cur_line_no += 1
 
             session_count_to_be_committed += 1
-            if session_count_to_be_committed >= config['sms_local_log_collector']['sms']['post']['max_count']:
+            if session_count_to_be_committed >= config['collector']['post']['max_count']:
                 commit_end_line_no = cur_line_no
                 session.commit()
                 click.echo('[{time}] commit session, line range: [{begin_line_no}, {end_line_no}]'.format(
@@ -122,7 +89,7 @@ def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, f
 
 def collect_log_from_local_file_by_range(config: dict, owner_name: str, repo_name: str, file_path: str,
                                          start_date, end_date, verbose):
-    session = get_session(config['sms_local_log_collector']['rdbms']['database_uri'])
+    session = get_session(config['collector']['rdbms']['database_uri'])
 
     with open(file_path) as f:
         first_line = f.readline().strip()
@@ -143,7 +110,7 @@ def collect_log_from_local_file_by_range(config: dict, owner_name: str, repo_nam
             f.readline()
 
         session_count_to_be_committed = 0
-        max_count = config['sms_local_log_collector']['sms']['post']['max_count']
+        max_count = config['collector']['post']['max_count']
         # max_count = 1
 
         cur_line_no = begin_line_no
@@ -194,7 +161,7 @@ def cli():
 @click.option('--output-type', type=click.Choice(['print', 'json']), default='json', help='output type')
 def info(config, owner, repo, log_file, output_type):
     config_object = load_config(config)
-    log_info = get_log_info_from_local_file(config_object, owner, repo, log_file, output_type)
+    log_info = get_log_info_from_local_file(log_file, SmsRecord)
     result = {
         'app': 'sms_local_collector',
         'timestamp': datetime.datetime.now().timestamp(),

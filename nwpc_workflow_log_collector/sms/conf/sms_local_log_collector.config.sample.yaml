@@ -1,9 +1,0 @@
-sms_local_log_collector:
-  sms:
-    post:
-      # max records collected before post to database.
-      max_count: 1000
-
-  rdbms:
-    # database uri, using in sqlalchemy
-    database_uri: mysql+mysqlconnector://user:password@host/dbname

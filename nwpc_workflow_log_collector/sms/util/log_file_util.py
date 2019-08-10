@@ -60,8 +60,8 @@ class SmsLogFileUtil(object):
 
         return begin_line_no, end_line_no
 
-    @staticmethod
-    def get_line_no_range(log_file_path, begin_date, end_date, max_line_no=1000):
+    @classmethod
+    def get_line_no_range(cls, log_file_path, begin_date, end_date, max_line_no=1000):
         begin_line_no = 0
         end_line_no = 0
         with open(log_file_path) as log_file:
@@ -102,7 +102,7 @@ class SmsLogFileUtil(object):
                 # if begin_line_no == end_line_no, then there is no line returned.
                 for i in range(begin_line_no - 1, len(next_n_lines)):
                     cur_line = next_n_lines[i]
-                    if not SmsLogFileUtil.is_record_line(cur_line):
+                    if not cls.is_record_line(cur_line):
                         continue
                     line_date = get_date_from_line(cur_line)
                     if line_date >= end_date:
@@ -124,7 +124,7 @@ class SmsLogFileUtil(object):
                 cur_pos = -1
                 while (-1 * cur_pos) < len(next_n_lines):
                     cur_last_line = next_n_lines[cur_pos]
-                    if SmsLogFileUtil.is_record_line(cur_last_line):
+                    if cls.is_record_line(cur_last_line):
                         break
                     cur_pos -= 1
 
@@ -137,7 +137,7 @@ class SmsLogFileUtil(object):
                 # find end_date
                 for i in range(0, len(next_n_lines)):
                     cur_line = next_n_lines[i]
-                    if not SmsLogFileUtil.is_record_line(cur_line):
+                    if not cls.is_record_line(cur_line):
                         continue
                     line_date = get_date_from_line(cur_line)
                     if line_date >= end_date:
