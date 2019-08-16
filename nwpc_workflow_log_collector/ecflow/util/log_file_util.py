@@ -6,9 +6,9 @@ import warnings
 
 def get_date_from_line(line):
     start_pos = 5
-    end_pos = line.find(']', start_pos)
+    end_pos = line.find("]", start_pos)
     time_string = line[start_pos:end_pos]
-    date_time = datetime.datetime.strptime(time_string, '%H:%M:%S %d.%m.%Y')
+    date_time = datetime.datetime.strptime(time_string, "%H:%M:%S %d.%m.%Y")
     line_date = date_time.date()
     return line_date
 

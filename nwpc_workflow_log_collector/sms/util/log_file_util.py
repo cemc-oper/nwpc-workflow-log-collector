@@ -6,9 +6,9 @@ import warnings
 
 def get_date_from_line(line):
     start_pos = 7
-    end_pos = line.find(']', start_pos)
+    end_pos = line.find("]", start_pos)
     time_string = line[start_pos:end_pos]
-    date_time = datetime.datetime.strptime(time_string, '%H:%M:%S %d.%m.%Y')
+    date_time = datetime.datetime.strptime(time_string, "%H:%M:%S %d.%m.%Y")
     line_date = date_time.date()
     return line_date
 
@@ -16,11 +16,13 @@ def get_date_from_line(line):
 class SmsLogFileUtil(object):
     @classmethod
     def is_record_line(cls, log_line: str):
-        return log_line.startswith('#')
+        return log_line.startswith("#")
 
     @staticmethod
     def get_line_no_range_old(log_file_path, begin_date, end_date):
-        warnings.warn("this is deprecated, use get_line_no_range instead", DeprecationWarning)
+        warnings.warn(
+            "this is deprecated, use get_line_no_range instead", DeprecationWarning
+        )
         begin_line_no = 0
         end_line_no = 0
         with open(log_file_path) as log_file:
@@ -33,9 +35,9 @@ class SmsLogFileUtil(object):
                     continue
                 cur_line += 1
                 start_pos = 7
-                end_pos = line.find(']', start_pos)
+                end_pos = line.find("]", start_pos)
                 time_string = line[start_pos:end_pos]
-                date_time = datetime.datetime.strptime(time_string, '%H:%M:%S %d.%m.%Y')
+                date_time = datetime.datetime.strptime(time_string, "%H:%M:%S %d.%m.%Y")
                 line_date = date_time.date()
                 if line_date >= end_date:
                     return begin_line_no, end_line_no
@@ -49,9 +51,9 @@ class SmsLogFileUtil(object):
             for line in log_file:
                 cur_line += 1
                 start_pos = 7
-                end_pos = line.find(']', start_pos)
+                end_pos = line.find("]", start_pos)
                 time_string = line[start_pos:end_pos]
-                date_time = datetime.datetime.strptime(time_string, '%H:%M:%S %d.%m.%Y')
+                date_time = datetime.datetime.strptime(time_string, "%H:%M:%S %d.%m.%Y")
                 if date_time.date() >= end_date:
                     end_line_no = cur_line
                     break
