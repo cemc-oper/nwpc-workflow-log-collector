@@ -14,16 +14,17 @@ from nwpc_workflow_log_collector.base.log_file_util import get_log_info_from_loc
 
 
 def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, file_path: str, verbose):
+    record_class = EcflowRecord
     session = get_session(config['collector']['rdbms']['database_uri'])
 
     with open(file_path) as f:
         first_line = f.readline().strip()
-        version = VersionUtil.get_version(session, owner_name, repo_name, file_path, first_line, EcflowRecord)
-        EcflowRecord.prepare(owner_name, repo_name)
+        version = VersionUtil.get_version(session, owner_name, repo_name, file_path, first_line, record_class)
+        record_class.prepare(owner_name, repo_name)
 
-        query = session.query(EcflowRecord).filter(EcflowRecord.repo_id == version.repo_id) \
-            .filter(EcflowRecord.version_id == version.version_id) \
-            .order_by(EcflowRecord.line_no.desc()) \
+        query = session.query(record_class).filter(record_class.repo_id == version.repo_id) \
+            .filter(record_class.version_id == version.version_id) \
+            .order_by(record_class.line_no.desc()) \
             .limit(1)
 
         latest_record = query.first()
@@ -33,7 +34,7 @@ def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, f
             start_line_no = latest_record.line_no + 1
 
         if start_line_no == 0:
-            record = EcflowRecord()
+            record = record_class()
             record.parse(first_line)
             record.repo_id = version.repo_id
             record.version_id = version.version_id
@@ -53,7 +54,7 @@ def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, f
             if line[0] != '#':
                 cur_line_no += 1
                 continue
-            record = EcflowRecord()
+            record = record_class()
             if verbose > 1:
                 print(cur_line_no, line)
             record.parse(line)
@@ -82,12 +83,13 @@ def collect_log_from_local_file(config: dict, owner_name: str, repo_name: str, f
 
 def collect_log_from_local_file_by_range(config: dict, owner_name: str, repo_name: str, file_path: str,
                                          start_date, end_date, verbose):
-    session = get_session(config['ecflow_local_log_collector']['rdbms']['database_uri'])
+    record_class = EcflowRecord
+    session = get_session(config['collector']['rdbms']['database_uri'])
 
     with open(file_path) as f:
         first_line = f.readline().strip()
-        version = VersionUtil.get_version(session, owner_name, repo_name, file_path, first_line, EcflowRecord)
-        EcflowRecord.prepare(owner_name, repo_name)
+        version = VersionUtil.get_version(session, owner_name, repo_name, file_path, first_line, record_class)
+        record_class.prepare(owner_name, repo_name)
 
         print("Finding line no in range:", start_date, end_date)
         begin_line_no, end_line_no = EcflowLogFileUtil.get_line_no_range(
@@ -114,7 +116,7 @@ def collect_log_from_local_file_by_range(config: dict, owner_name: str, repo_nam
             # if len(line) == 0:
             #     cur_line_no += 1
             #     continue
-            record = EcflowRecord()
+            record = record_class()
             if verbose > 1:
                 print(cur_line_no, line)
             record.parse(line)
