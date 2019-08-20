@@ -16,7 +16,12 @@ def is_record_line(log_line: str):
     return log_line.startswith("#")
 
 
-def get_line_no_range(log_file_path: str, begin_date: datetime.date, end_date: datetime.date, max_line_no: int = 1000):
+def get_line_no_range(
+    log_file_path: str,
+    begin_date: datetime.date,
+    end_date: datetime.date,
+    max_line_no: int = 1000,
+):
     begin_line_no = 0
     end_line_no = 0
     with open(log_file_path) as log_file:

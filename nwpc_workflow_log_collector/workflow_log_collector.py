@@ -12,18 +12,20 @@ from nwpc_workflow_log_collector.base.log_file_util import get_log_info_from_loc
 
 
 def get_record_class(workflow_type: str):
-    if workflow_type == 'sms':
+    if workflow_type == "sms":
         return SmsRecord
-    elif workflow_type == 'ecflow':
+    elif workflow_type == "ecflow":
         return EcflowRecord
 
 
 def get_collector_module(workflow_type: str):
-    if workflow_type == 'sms':
+    if workflow_type == "sms":
         from nwpc_workflow_log_collector import sms as collector_module
+
         return collector_module
-    elif workflow_type == 'ecflow':
+    elif workflow_type == "ecflow":
         from nwpc_workflow_log_collector import ecflow as collector_module
+
         return collector_module
 
 
@@ -37,8 +39,13 @@ def cli():
 @click.option("-o", "--owner", help="owner name")
 @click.option("-r", "--repo", help="repo name")
 @click.option(
-    "-t", "--workflow-type", "workflow_type", help="workflow type",
-    required=True, type=click.Choice(['sms', 'ecflow']))
+    "-t",
+    "--workflow-type",
+    "workflow_type",
+    help="workflow type",
+    required=True,
+    type=click.Choice(["sms", "ecflow"]),
+)
 @click.option("-l", "--log-file", help="log file path")
 @click.option(
     "--output-type",
@@ -63,14 +70,21 @@ def info(config, owner, repo, workflow_type, log_file, output_type):
 @click.option("-o", "--owner", help="owner name")
 @click.option("-r", "--repo", help="repo name")
 @click.option(
-    "-t", "--workflow-type", "workflow_type", help="workflow type",
-    required=True, type=click.Choice(['sms', 'ecflow']))
+    "-t",
+    "--workflow-type",
+    "workflow_type",
+    help="workflow type",
+    required=True,
+    type=click.Choice(["sms", "ecflow"]),
+)
 @click.option("-l", "--log-file", help="log file path")
 @click.option("-v", "--verbose", count=True, help="verbose level")
 def load(config, owner, repo, workflow_type, log_file, verbose):
     config_object = load_config(config)
     collector_module = get_collector_module(workflow_type)
-    collector_module.collect_log_from_local_file(config_object, owner, repo, log_file, verbose)
+    collector_module.collect_log_from_local_file(
+        config_object, owner, repo, log_file, verbose
+    )
 
 
 @cli.command()
@@ -78,13 +92,20 @@ def load(config, owner, repo, workflow_type, log_file, verbose):
 @click.option("-o", "--owner", help="owner name")
 @click.option("-r", "--repo", help="repo name")
 @click.option(
-    "-t", "--workflow-type", "workflow_type", help="workflow type",
-    required=True, type=click.Choice(['sms', 'ecflow']))
+    "-t",
+    "--workflow-type",
+    "workflow_type",
+    help="workflow type",
+    required=True,
+    type=click.Choice(["sms", "ecflow"]),
+)
 @click.option("-l", "--log-file", help="log file path")
 @click.option("--begin-date", help="begin date, [start_date, end_date), YYYY-MM-dd")
 @click.option("--end-date", help="end date, [start_date, end_date), YYYY-MM-dd")
 @click.option("-v", "--verbose", count=True, help="verbose level")
-def load_range(config, owner, repo, workflow_type, log_file, begin_date, end_date, verbose):
+def load_range(
+    config, owner, repo, workflow_type, log_file, begin_date, end_date, verbose
+):
     config_object = load_config(config)
     collector_module = get_collector_module(workflow_type)
     collector_module.collect_log_from_local_file_by_range(

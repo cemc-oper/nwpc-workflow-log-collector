@@ -8,7 +8,10 @@ from nwpc_workflow_log_model.rmdb.util.session import get_session
 from nwpc_workflow_log_model.rmdb.sms.record import SmsRecord
 from nwpc_workflow_log_model.rmdb.util.version_util import VersionUtil
 
-from nwpc_workflow_log_collector.sms.log_file_util import is_record_line, get_line_no_range
+from nwpc_workflow_log_collector.sms.log_file_util import (
+    is_record_line,
+    get_line_no_range,
+)
 
 
 def load_config(config_file_path):
