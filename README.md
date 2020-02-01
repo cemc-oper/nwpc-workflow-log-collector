@@ -16,6 +16,6 @@ Generate time line chart using complied `time_line_chart_tool.js` in `nwpc-workf
 
 ## LICENSE
 
-Copyright &copy; 2017-2019, Perilla Roc.
+Copyright &copy; 2017-2020, perillaroc at nwpc-oper.
 
 `nwpc-monitor-platform` is licensed under [GPL v3.0](LICENSE.md)
