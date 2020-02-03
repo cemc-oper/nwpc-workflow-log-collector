@@ -1,7 +1,7 @@
-# coding: utf-8
-import click
 import json
 import datetime
+
+import click
 
 from nwpc_workflow_log_collector.base.util import get_record_class, get_collector_module
 from nwpc_workflow_log_collector.base.config import load_config
@@ -13,7 +13,7 @@ def cli():
     pass
 
 
-@cli.command()
+@cli.command("print log file information.")
 @click.option("-c", "--config", help="config file path")
 @click.option("-o", "--owner", help="owner name")
 @click.option("-r", "--repo", help="repo name")
@@ -33,6 +33,12 @@ def cli():
     help="output type",
 )
 def info(config, owner, repo, workflow_type, log_file, output_type):
+    """
+    Print information of workflow log files, including:
+        - file path
+        - line count
+        - time range
+    """
     config_object = load_config(config)
     record_class = get_record_class(workflow_type)
     log_info = get_log_info_from_local_file(log_file, record_class)
@@ -44,7 +50,7 @@ def info(config, owner, repo, workflow_type, log_file, output_type):
     click.echo(json.dumps(result, indent=2))
 
 
-@cli.command()
+@cli.command("load workflow logs.")
 @click.option("-c", "--config", help="config file path")
 @click.option("-o", "--owner", help="owner name")
 @click.option("-r", "--repo", help="repo name")
@@ -66,7 +72,7 @@ def load(config, owner, repo, workflow_type, log_file, verbose):
     )
 
 
-@cli.command()
+@cli.command("load workflow logs with date range.")
 @click.option("-c", "--config", help="config file path")
 @click.option("-o", "--owner", help="owner name")
 @click.option("-r", "--repo", help="repo name")
@@ -79,8 +85,8 @@ def load(config, owner, repo, workflow_type, log_file, verbose):
     type=click.Choice(["sms", "ecflow"]),
 )
 @click.option("-l", "--log-file", help="log file path")
-@click.option("--begin-date", help="begin date, [start_date, end_date), YYYY-MM-dd")
-@click.option("--end-date", help="end date, [start_date, end_date), YYYY-MM-dd")
+@click.option("--begin-date", default=None, help="begin date, date range: [begin_date, end_date), YYYY-MM-dd")
+@click.option("--end-date", default=None, help="end date, date range: [begin_date, end_date), YYYY-MM-dd")
 @click.option("-v", "--verbose", count=True, help="verbose level")
 def load_range(
     config, owner, repo, workflow_type, log_file, begin_date, end_date, verbose

@@ -1,12 +1,19 @@
-# coding: utf-8
+from nwpc_workflow_log_model.base.log_record import LogRecord
 
 
-def get_log_info_from_local_file(log_file: str, log_class):
+def get_log_info_from_local_file(
+        log_file: str,
+        record_class: LogRecord,
+):
     with open(log_file) as f:
         first_line = f.readline()
         if first_line is None:
-            return {"file_path": log_file, "line_count": 0}
-        first_record = log_class()
+            return {
+                "file_path": log_file,
+                "line_count": 0
+            }
+
+        first_record = record_class()
         first_record.parse(first_line)
 
         cur_line_no = 1
@@ -14,7 +21,7 @@ def get_log_info_from_local_file(log_file: str, log_class):
         for line in f:
             cur_line = line
             cur_line_no += 1
-        last_record = log_class()
+        last_record = record_class()
         last_record.parse(cur_line)
         return {
             "file_path": log_file,

@@ -1,21 +1,14 @@
-# nwpc-workflow-log-tool
+# nwpc-workflow-log-collector
 
-A workflow log tool for operation systems in NWPC.
+Log collectors for workflow log in NWPC.
+Support ecFlow and SMS.
 
-## Introduction
+## Getting started
 
-Analysis SMS and ecFlow logs.
-
-## Usage
-
-Collect from log files and store in MySQL using `nwpc-workflow-log-collector`.
-
-Process log records from log files or MySQL using processors in `nwpc-workflow-log-processor`.
-
-Generate time line chart using complied `time_line_chart_tool.js` in `nwpc-workflow-log-chart`.
+## Config
 
 ## LICENSE
 
-Copyright &copy; 2017-2020, perillaroc at nwpc-oper.
+Copyright &copy; 2019-2020 perillaroc at nwpc-oper.
 
-`nwpc-monitor-platform` is licensed under [GPL v3.0](LICENSE.md)
+`nwpc-workflow-log-collect` is license under GPL v3.0.
