@@ -1,5 +1,6 @@
 import datetime
-import click
+
+from loguru import logger
 
 from nwpc_workflow_log_model.rmdb.util.session import get_session
 from nwpc_workflow_log_model.rmdb.ecflow.record import EcflowRecord
@@ -73,7 +74,7 @@ def collect_log_from_local_file(
             ):
                 commit_end_line_no = cur_line_no
                 session.commit()
-                click.echo(
+                logger.info(
                     "[{time}] commit session, line range: [{begin_line_no}, {end_line_no}]".format(
                         time=datetime.datetime.now(),
                         begin_line_no=commit_begin_line_no,
@@ -85,7 +86,7 @@ def collect_log_from_local_file(
 
         if session_count_to_be_committed > 0:
             session.commit()
-            click.echo("commit session, last lines.")
+            logger.info("commit session, last lines.")
 
 
 def collect_log_from_local_file_by_range(
@@ -114,7 +115,7 @@ def collect_log_from_local_file_by_range(
             datetime.datetime.strptime(end_date, "%Y-%m-%d").date(),
         )
         if begin_line_no == 0 or end_line_no == 0:
-            click.echo("line not found")
+            logger.info("line not found")
             return
         print("Found line no in range:", begin_line_no, end_line_no)
 
@@ -147,7 +148,7 @@ def collect_log_from_local_file_by_range(
             if session_count_to_be_committed >= max_count:
                 commit_end_line_no = cur_line_no
                 session.commit()
-                click.echo(
+                logger.info(
                     "[{time}] commit session, line range: [{begin_line_no}, {end_line_no}]".format(
                         time=datetime.datetime.now(),
                         begin_line_no=commit_begin_line_no,
@@ -159,4 +160,4 @@ def collect_log_from_local_file_by_range(
 
         if session_count_to_be_committed > 0:
             session.commit()
-            click.echo("commit session, last lines.")
+            logger.info("commit session, last lines.")
