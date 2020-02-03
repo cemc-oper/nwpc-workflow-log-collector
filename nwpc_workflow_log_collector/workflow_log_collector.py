@@ -3,30 +3,9 @@ import click
 import json
 import datetime
 
-
-from nwpc_workflow_log_model.rmdb.ecflow.record import EcflowRecord
-from nwpc_workflow_log_model.rmdb.sms.record import SmsRecord
-
+from nwpc_workflow_log_collector.base.util import get_record_class, get_collector_module
 from nwpc_workflow_log_collector.base.config import load_config
 from nwpc_workflow_log_collector.base.log_file_util import get_log_info_from_local_file
-
-
-def get_record_class(workflow_type: str):
-    if workflow_type == "sms":
-        return SmsRecord
-    elif workflow_type == "ecflow":
-        return EcflowRecord
-
-
-def get_collector_module(workflow_type: str):
-    if workflow_type == "sms":
-        from nwpc_workflow_log_collector import sms as collector_module
-
-        return collector_module
-    elif workflow_type == "ecflow":
-        from nwpc_workflow_log_collector import ecflow as collector_module
-
-        return collector_module
 
 
 @click.group()
