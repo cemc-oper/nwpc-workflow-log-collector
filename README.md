@@ -11,4 +11,4 @@ Support ecFlow and SMS.
 
 Copyright &copy; 2019-2020 perillaroc at nwpc-oper.
 
-`nwpc-workflow-log-collect` is license under GPL v3.0.
+`nwpc-workflow-log-collector` is license under [GPL v3.0](./LICENSE.md).
