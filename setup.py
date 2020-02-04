@@ -40,7 +40,7 @@ setup(
         "pyyaml",
         "loguru",
         "click",
-        "nwpc-workflow-log-model>=1,<2",
+        "nwpc-workflow-log-model>=2,<3",
     ],
 
     extras_require={
