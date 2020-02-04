@@ -11,7 +11,7 @@ with codecs.open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='nwpc-workflow-log-collector',
 
-    version='1.0.0',
+    version='2.0.0',
 
     description='Log collectors for workflow log in NWPC.',
     long_description=long_description,
