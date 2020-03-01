@@ -2,6 +2,11 @@
 from setuptools import setup, find_packages
 import codecs
 from os import path
+import io
+import re
+
+with io.open("nwpc_workflow_log_model/__init__.py", "rt", encoding="utf8") as f:
+    version = re.search(r'__version__ = "(.*?)"', f.read()).group(1)
 
 here = path.abspath(path.dirname(__file__))
 
@@ -11,7 +16,7 @@ with codecs.open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='nwpc-workflow-log-collector',
 
-    version='2.2.0',
+    version=version,
 
     description='Log collectors for workflow log in NWPC.',
     long_description=long_description,
