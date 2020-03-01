@@ -5,7 +5,7 @@ from os import path
 import io
 import re
 
-with io.open("nwpc_workflow_log_model/__init__.py", "rt", encoding="utf8") as f:
+with io.open("nwpc_workflow_log_collector/__init__.py", "rt", encoding="utf8") as f:
     version = re.search(r'__version__ = "(.*?)"', f.read()).group(1)
 
 here = path.abspath(path.dirname(__file__))
@@ -45,7 +45,7 @@ setup(
         "pyyaml",
         "loguru",
         "click",
-        "nwpc-workflow-log-model>=2,<3",
+        "nwpc-workflow-log-model>=3.0.0a0,<4",
     ],
 
     extras_require={
@@ -53,5 +53,9 @@ setup(
         'cov': ['pytest-cov', 'codecov']
     },
 
-    entry_points={}
+    entry_points={
+        "console_scripts": [
+            "workflow_log_collector = nwpc_workflow_log_collector.cli:cli",
+        ],
+    }
 )
