@@ -55,7 +55,7 @@ setup(
 
     entry_points={
         "console_scripts": [
-            "workflow_log_collector = nwpc_workflow_log_collector.cli:cli",
+            "workflow_log_collector = nwpc_workflow_log_collector.collector:cli",
         ],
     }
 )
