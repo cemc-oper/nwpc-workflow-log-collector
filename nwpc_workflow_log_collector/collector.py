@@ -3,6 +3,8 @@ import datetime
 
 import click
 
+import nwpc_workflow_log_collector.ecflow.collector as ecflow_collector
+import nwpc_workflow_log_collector.sms.collector as sms_collector
 from nwpc_workflow_log_collector.util import get_record_class, get_collector_module
 from nwpc_workflow_log_collector.config import load_config
 from nwpc_workflow_log_collector.log_info import get_log_info_from_local_file

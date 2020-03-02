@@ -1,10 +1,8 @@
 from nwpc_workflow_log_model.rmdb.ecflow.record import EcflowRecord
 from nwpc_workflow_log_model.rmdb.sms.record import SmsRecord
 
-from nwpc_workflow_log_collector import (
-    sms as sms_collector,
-    ecflow as ecflow_collector
-)
+from nwpc_workflow_log_collector.sms import collector as sms_collector
+from nwpc_workflow_log_collector.ecflow import collector as ecflow_collector
 
 
 WORKFLOW_SMS = "sms"
