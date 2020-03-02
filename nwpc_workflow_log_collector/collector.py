@@ -3,9 +3,9 @@ import datetime
 
 import click
 
-from nwpc_workflow_log_collector.base.util import get_record_class, get_collector_module
-from nwpc_workflow_log_collector.base.config import load_config
-from nwpc_workflow_log_collector.base.log_file_util import get_log_info_from_local_file
+from nwpc_workflow_log_collector.util import get_record_class, get_collector_module
+from nwpc_workflow_log_collector.config import load_config
+from nwpc_workflow_log_collector.log_info import get_log_info_from_local_file
 
 
 @click.group()

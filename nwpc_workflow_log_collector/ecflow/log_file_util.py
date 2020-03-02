@@ -25,6 +25,25 @@ def get_line_no_range(
     end_date: datetime.date = None,
     batch_line_no: int = 1000,
 ) -> (int, int):
+    """
+    Get line number range in [begin_date, end_date)
+
+    Parameters
+    ----------
+    log_file_path: str
+        log file path
+    begin_date: datetime.date
+        begin date, [begin_date, end_date)
+    end_date: datetime.date
+        end date, [begin_date, end_date)
+    batch_line_no: int
+        number of log lines in one read
+
+    Returns
+    -------
+    int, int
+        begin line number and end line number, [begin_number, end_number)
+    """
     begin_line_no = 0
     end_line_no = -1
     with open(log_file_path) as log_file:
