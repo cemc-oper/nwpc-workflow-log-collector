@@ -3,6 +3,10 @@ from itertools import islice
 
 
 def get_date_from_line(line: str) -> datetime.date:
+    """
+    Log example:
+        LOG:[12:34:57 1.3.2020]  active: /grapes_meso_3km_post
+    """
     start_pos = 5
     end_pos = line.find("]", start_pos)
     time_string = line[start_pos:end_pos]
