@@ -1,4 +1,4 @@
-from nwpc_workflow_log_model.base.log_record import LogRecord
+from nwpc_workflow_log_model.log_record.log_record import LogRecord
 
 
 def get_log_info_from_local_file(
@@ -12,7 +12,6 @@ def get_log_info_from_local_file(
                 "file_path": log_file,
                 "line_count": 0
             }
-
         first_record = record_class()
         first_record.parse(first_line)
 
