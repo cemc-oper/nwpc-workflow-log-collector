@@ -13,7 +13,7 @@ def cli():
     pass
 
 
-@cli.command("print log file information.")
+@cli.command("info")
 @click.option("-c", "--config", help="config file path")
 @click.option("-o", "--owner", help="owner name")
 @click.option("-r", "--repo", help="repo name")
@@ -50,7 +50,7 @@ def info(config, owner, repo, workflow_type, log_file, output_type):
     click.echo(json.dumps(result, indent=2))
 
 
-@cli.command("load workflow logs.")
+@cli.command("load")
 @click.option("-c", "--config", help="config file path")
 @click.option("-o", "--owner", help="owner name")
 @click.option("-r", "--repo", help="repo name")
@@ -72,7 +72,7 @@ def load(config, owner, repo, workflow_type, log_file, verbose):
     )
 
 
-@cli.command("load workflow logs with date range.")
+@cli.command("load_range")
 @click.option("-c", "--config", help="config file path")
 @click.option("-o", "--owner", help="owner name")
 @click.option("-r", "--repo", help="repo name")
