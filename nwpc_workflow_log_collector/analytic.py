@@ -3,7 +3,7 @@ import datetime
 
 import click
 
-from nwpc_workflow_log_collector.ecflow.analytic import analytics_log_from_local_file
+from nwpc_workflow_log_collector.ecflow.analytic import analytics_node_log_with_status
 from nwpc_workflow_model.node_status import NodeStatus
 
 
@@ -22,7 +22,7 @@ def cli():
 def load_range(
     log_file, node_path, node_status, begin_date, end_date, verbose
 ):
-    analytics_log_from_local_file(
+    analytics_node_log_with_status(
         log_file,
         node_path,
         NodeStatus[node_status],

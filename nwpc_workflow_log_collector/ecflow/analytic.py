@@ -12,7 +12,7 @@ from scipy import stats
 from .log_file_util import get_line_no_range
 
 
-def analytics_log_from_local_file(
+def analytics_node_log_with_status(
         file_path: str,
         node_path: str,
         node_status: NodeStatus.submitted,
