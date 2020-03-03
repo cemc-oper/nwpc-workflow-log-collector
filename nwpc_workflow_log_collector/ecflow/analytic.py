@@ -21,7 +21,13 @@ def analytics_log_from_local_file(
         verbose: int,
 ):
     with open(file_path) as f:
-        logger.info(f"Finding line no in range: {start_date}, {end_date}")
+        logger.info(f"Analytic time points")
+        logger.info(f"\tnode_path: {node_path}")
+        logger.info(f"\tnode_status: {node_status}")
+        logger.info(f"\tstart_date: {start_date}")
+        logger.info(f"\tend_date: {end_date}")
+
+        logger.info(f"Finding line range in date range: {start_date}, {end_date}")
         begin_line_no, end_line_no = get_line_no_range(
             file_path,
             datetime.datetime.strptime(start_date, "%Y-%m-%d").date(),
@@ -30,9 +36,9 @@ def analytics_log_from_local_file(
         if begin_line_no == 0 or end_line_no == 0:
             logger.info("line not found")
             return
-        logger.info(f"Found line no in range: {begin_line_no}, {end_line_no}")
+        logger.info(f"Found line range: {begin_line_no}, {end_line_no}")
 
-        logger.info(f"Reading lines before {begin_line_no}...")
+        logger.info(f"Skipping lines before {begin_line_no}...")
         pbar_before = pyprind.ProgBar(begin_line_no)
 
         batch_number = 1000
@@ -50,7 +56,7 @@ def analytics_log_from_local_file(
 
         prog = re.compile(f"{node_path}")
 
-        logger.info(f"Reading lines in {begin_line_no} and {end_line_no}")
+        logger.info(f"Reading lines between {begin_line_no} and {end_line_no}")
         pbar_read = pyprind.ProgBar(end_line_no - begin_line_no)
         for i in range(begin_line_no, end_line_no):
             pbar_read.update()
