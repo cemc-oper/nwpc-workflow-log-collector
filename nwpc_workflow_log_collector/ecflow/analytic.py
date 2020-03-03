@@ -3,11 +3,17 @@ import re
 from itertools import islice
 
 from loguru import logger
-from nwpc_workflow_log_model.log_record.ecflow import EcflowLogParser, StatusLogRecord
-from nwpc_workflow_model.node_status import NodeStatus
 import pyprind
 import pandas as pd
 from scipy import stats
+
+from nwpc_workflow_log_model.log_record.ecflow import EcflowLogParser, StatusLogRecord
+from nwpc_workflow_log_model.log_record.ecflow.status_record import StatusChangeEntry
+from nwpc_workflow_log_model.analytics.node_situation import (
+    SituationType,
+    NodeStatus,
+)
+from nwpc_workflow_log_model.analytics.node_status_change_dfa import NodeStatusChangeDFA
 
 from .log_file_util import get_line_no_range
 
@@ -30,7 +36,7 @@ def analytics_node_log_with_status(
     records = get_record_list(file_path, node_path, start_date, end_date)
     logger.info(f"Getting log lines...Done, {len(records)} lines")
 
-    analytic_status_point(records, node_path, node_status, start_date, end_date)
+    analytic_status_point_dfa(records, node_path, node_status, start_date, end_date)
 
 
 def get_record_list(
@@ -113,3 +119,59 @@ def analytic_status_point(
     trim_mean = stats.trim_mean(time_series.values, 0.25)
     print("Trim Mean (0.25):")
     print(pd.to_timedelta(trim_mean))
+
+
+def analytic_status_point_dfa(
+        records: list,
+        node_path: str,
+        node_status: NodeStatus,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
+):
+    record_list = []
+    for record in records:
+        if record.node_path == node_path and isinstance(record, StatusLogRecord):
+            record_list.append(record)
+
+    time_series = []
+    for current_date in pd.date_range(start=start_date, end=end_date, closed="left"):
+        filter_function = generate_in_date_range(current_date, current_date + pd.Timedelta(days=1))
+        current_records = list(filter(lambda x: filter_function(x), record_list))
+
+        status_changes = [StatusChangeEntry(r) for r in current_records]
+
+        dfa = NodeStatusChangeDFA(name=current_date)
+
+        for s in status_changes:
+            dfa.trigger(
+                s.status.value,
+                node_data=s,
+            )
+            if dfa.state is SituationType.Complete:
+                break
+
+        if dfa.state is SituationType.Complete:
+            node_situation = dfa.node_situation
+            p = node_situation.time_points[1]
+            if p.status != NodeStatus.submitted:
+                logger.warning("[{}] skip: there is no submitted", current_date.strftime("%Y-%m-%d"))
+            else:
+                time_length = p.time - current_date
+                time_series.append(time_length)
+                logger.info("[{}] {}", current_date.strftime("%Y-%m-%d"), time_length)
+        else:
+            logger.warning("[{}] skip: DFA is not in complete", current_date.strftime("%Y-%m-%d"))
+
+    time_series = pd.Series(time_series)
+    print("Mean:")
+    print(time_series.mean())
+
+    trim_mean = stats.trim_mean(time_series.values, 0.25)
+    print("Trim Mean (0.25):")
+    print(pd.to_timedelta(trim_mean))
+
+
+def generate_in_date_range(start_date, end_date):
+    def in_date_range(record):
+        return start_date <= record.date <= end_date
+    return in_date_range
