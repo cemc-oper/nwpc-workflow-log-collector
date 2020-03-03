@@ -46,6 +46,9 @@ setup(
         "loguru",
         "click",
         "nwpc-workflow-log-model>=3.0.0a0,<4",
+        "pandas",
+        "scipy",
+        "pyprind",
     ],
 
     extras_require={
