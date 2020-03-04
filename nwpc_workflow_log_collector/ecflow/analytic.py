@@ -50,8 +50,8 @@ def get_record_list(
         logger.info(f"Finding line range in date range: {start_date}, {end_date}")
         begin_line_no, end_line_no = get_line_no_range(
             file_path,
-            datetime.datetime.strptime(start_date, "%Y-%m-%d").date(),
-            datetime.datetime.strptime(end_date, "%Y-%m-%d").date(),
+            start_date.date(),
+            end_date.date(),
         )
         if begin_line_no == 0 or end_line_no == 0:
             logger.info("line not found")
@@ -74,7 +74,7 @@ def get_record_list(
 
         prog = re.compile(f"{node_path}")
 
-        logger.info(f"Reading lines between {begin_line_no} and {end_line_no}")
+        logger.info(f"Reading lines between {begin_line_no} and {end_line_no}...")
         pbar_read = pyprind.ProgBar(end_line_no - begin_line_no)
         for i in range(begin_line_no, end_line_no):
             pbar_read.update()
@@ -128,11 +128,13 @@ def analytic_status_point_dfa(
         start_date: datetime.datetime,
         end_date: datetime.datetime,
 ):
+    logger.info("Finding StatusLogRecord for {}", node_path)
     record_list = []
     for record in records:
         if record.node_path == node_path and isinstance(record, StatusLogRecord):
             record_list.append(record)
 
+    logger.info("Calculating node status change using DFA...")
     time_series = []
     for current_date in pd.date_range(start=start_date, end=end_date, closed="left"):
         filter_function = generate_in_date_range(current_date, current_date + pd.Timedelta(days=1))
@@ -165,15 +167,16 @@ def analytic_status_point_dfa(
             logger.warning("[{}] skip: DFA is not in complete", current_date.strftime("%Y-%m-%d"))
             print_records(current_records)
 
-    print()
-
     time_series = pd.Series(time_series)
     time_series_mean = time_series.mean()
+    print()
     print("Mean:")
     print(time_series_mean)
 
-    time_series_trim_mean = stats.trim_mean(time_series.values, 0.25)
-    print("Trim Mean (0.25):")
+    ratio = 0.25
+    time_series_trim_mean = stats.trim_mean(time_series.values, ratio)
+    print()
+    print(f"Trim Mean ({ratio}):")
     print(pd.to_timedelta(time_series_trim_mean))
 
 
