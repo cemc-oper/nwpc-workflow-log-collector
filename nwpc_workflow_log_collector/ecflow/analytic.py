@@ -152,25 +152,29 @@ def analytic_status_point_dfa(
 
         if dfa.state is SituationType.Complete:
             node_situation = dfa.node_situation
-            p = node_situation.time_points[1]
-            if p.status != NodeStatus.submitted:
-                logger.warning("[{}] skip: there is no submitted", current_date.strftime("%Y-%m-%d"))
+            time_points = node_situation.time_points
+            point = next((i for i in time_points if i.status == node_status), None)
+            if point is None:
+                logger.warning("[{}] skip: no time point {}", current_date.strftime("%Y-%m-%d"), node_status)
                 print_records(current_records)
             else:
-                time_length = p.time - current_date
+                time_length = point.time - current_date
                 time_series.append(time_length)
                 logger.info("[{}] {}", current_date.strftime("%Y-%m-%d"), time_length)
         else:
             logger.warning("[{}] skip: DFA is not in complete", current_date.strftime("%Y-%m-%d"))
             print_records(current_records)
 
-    time_series = pd.Series(time_series)
-    print("Mean:")
-    print(time_series.mean())
+    print()
 
-    trim_mean = stats.trim_mean(time_series.values, 0.25)
+    time_series = pd.Series(time_series)
+    time_series_mean = time_series.mean()
+    print("Mean:")
+    print(time_series_mean)
+
+    time_series_trim_mean = stats.trim_mean(time_series.values, 0.25)
     print("Trim Mean (0.25):")
-    print(pd.to_timedelta(trim_mean))
+    print(pd.to_timedelta(time_series_trim_mean))
 
 
 def generate_in_date_range(start_date, end_date):
