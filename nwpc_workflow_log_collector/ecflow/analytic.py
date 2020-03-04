@@ -155,12 +155,14 @@ def analytic_status_point_dfa(
             p = node_situation.time_points[1]
             if p.status != NodeStatus.submitted:
                 logger.warning("[{}] skip: there is no submitted", current_date.strftime("%Y-%m-%d"))
+                print_records(current_records)
             else:
                 time_length = p.time - current_date
                 time_series.append(time_length)
                 logger.info("[{}] {}", current_date.strftime("%Y-%m-%d"), time_length)
         else:
             logger.warning("[{}] skip: DFA is not in complete", current_date.strftime("%Y-%m-%d"))
+            print_records(current_records)
 
     time_series = pd.Series(time_series)
     print("Mean:")
@@ -175,3 +177,8 @@ def generate_in_date_range(start_date, end_date):
     def in_date_range(record):
         return start_date <= record.date <= end_date
     return in_date_range
+
+
+def print_records(records):
+    for r in records:
+        print(r.log_record)
