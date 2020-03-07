@@ -171,25 +171,25 @@ def get_record_list(
         logger.info(f"Found line range: {begin_line_no}, {end_line_no}")
 
         logger.info(f"Skipping lines before {begin_line_no}...")
-        pbar_before = pyprind.ProgBar(begin_line_no)
+        progressbar_before = pyprind.ProgBar(begin_line_no)
 
         batch_number = 1000
         batch_count = int(begin_line_no/batch_number)
         remain_lines = begin_line_no % batch_number
         for i in range(0, batch_count):
             next_n_lines = list(islice(f, batch_number))
-            pbar_before.update(batch_number)
+            progressbar_before.update(batch_number)
 
         for i in range(0, remain_lines):
             next(f)
-            pbar_before.update()
+            progressbar_before.update()
 
         prog = re.compile(f"{node_path}")
 
         logger.info(f"Reading lines between {begin_line_no} and {end_line_no}...")
-        pbar_read = pyprind.ProgBar(end_line_no - begin_line_no)
+        progressbar_read = pyprind.ProgBar(end_line_no - begin_line_no)
         for i in range(begin_line_no, end_line_no):
-            pbar_read.update()
+            progressbar_read.update()
             line = f.readline()
             line = line.strip()
 
