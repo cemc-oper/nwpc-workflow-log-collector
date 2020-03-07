@@ -37,35 +37,6 @@ def analytics_node_log_with_status(
     analytic_status_point_dfa(records, node_path, node_status, start_date, end_date)
 
 
-def analytic_status_point(
-        records: list,
-        node_path: str,
-        node_status: NodeStatus,
-        start_date: datetime.datetime,
-        end_date: datetime.datetime,
-):
-    record_list = []
-    for record in records:
-        if record.node_path == node_path and isinstance(record, StatusLogRecord):
-            if record.status == node_status:
-                record_list.append(record)
-
-    print(f"Time series for {node_path} with {node_status}:")
-    for r in record_list:
-        print(f"{r.date} {r.time}")
-
-    time_series = pd.Series([
-        (datetime.datetime.combine(r.date, r.time) - datetime.datetime.combine(r.date, datetime.time.min))
-        for r in record_list
-    ])
-    print("Mean:")
-    print(time_series.mean())
-
-    trim_mean = stats.trim_mean(time_series.values, 0.25)
-    print("Trim Mean (0.25):")
-    print(pd.to_timedelta(trim_mean))
-
-
 def analytic_status_point_dfa(
         records: list,
         node_path: str,
