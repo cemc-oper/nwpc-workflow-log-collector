@@ -1,5 +1,10 @@
 import datetime
+import re
 from itertools import islice
+
+import pyprind
+from loguru import logger
+from nwpc_workflow_log_model.log_record.ecflow import EcflowLogParser
 
 
 def get_date_from_line(line: str) -> datetime.date:
@@ -144,3 +149,56 @@ def get_line_no_range(
                 return begin_line_no, cur_first_line_no + len(next_n_lines)
 
     return begin_line_no, end_line_no
+
+
+def get_record_list(
+        file_path: str,
+        node_path: str,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
+):
+    records = []
+    with open(file_path) as f:
+        logger.info(f"Finding line range in date range: {start_date}, {end_date}")
+        begin_line_no, end_line_no = get_line_no_range(
+            file_path,
+            start_date.date(),
+            end_date.date(),
+        )
+        if begin_line_no == 0 or end_line_no == 0:
+            logger.info("line not found")
+            return
+        logger.info(f"Found line range: {begin_line_no}, {end_line_no}")
+
+        logger.info(f"Skipping lines before {begin_line_no}...")
+        pbar_before = pyprind.ProgBar(begin_line_no)
+
+        batch_number = 1000
+        batch_count = int(begin_line_no/batch_number)
+        remain_lines = begin_line_no % batch_number
+        for i in range(0, batch_count):
+            next_n_lines = list(islice(f, batch_number))
+            pbar_before.update(batch_number)
+
+        for i in range(0, remain_lines):
+            next(f)
+            pbar_before.update()
+
+        prog = re.compile(f"{node_path}")
+
+        logger.info(f"Reading lines between {begin_line_no} and {end_line_no}...")
+        pbar_read = pyprind.ProgBar(end_line_no - begin_line_no)
+        for i in range(begin_line_no, end_line_no):
+            pbar_read.update()
+            line = f.readline()
+            line = line.strip()
+
+            result = prog.search(line)
+            if result is None:
+                continue
+
+            parser = EcflowLogParser()
+            record = parser.parse(line)
+            records.append(record)
+
+    return records

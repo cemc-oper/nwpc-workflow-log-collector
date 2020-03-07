@@ -1,13 +1,10 @@
 import datetime
-import re
-from itertools import islice
 
 from loguru import logger
-import pyprind
 import pandas as pd
 from scipy import stats
 
-from nwpc_workflow_log_model.log_record.ecflow import EcflowLogParser, StatusLogRecord
+from nwpc_workflow_log_model.log_record.ecflow import StatusLogRecord
 from nwpc_workflow_log_model.log_record.ecflow.status_record import StatusChangeEntry
 from nwpc_workflow_log_model.analytics.node_situation import (
     SituationType,
@@ -15,7 +12,8 @@ from nwpc_workflow_log_model.analytics.node_situation import (
 )
 from nwpc_workflow_log_model.analytics.node_status_change_dfa import NodeStatusChangeDFA
 
-from .log_file_util import get_line_no_range
+from .log_file_util import get_record_list
+from .util import generate_in_date_range, print_records
 
 
 def analytics_node_log_with_status(
@@ -37,59 +35,6 @@ def analytics_node_log_with_status(
     logger.info(f"Getting log lines...Done, {len(records)} lines")
 
     analytic_status_point_dfa(records, node_path, node_status, start_date, end_date)
-
-
-def get_record_list(
-        file_path: str,
-        node_path: str,
-        start_date: datetime.datetime,
-        end_date: datetime.datetime,
-):
-    records = []
-    with open(file_path) as f:
-        logger.info(f"Finding line range in date range: {start_date}, {end_date}")
-        begin_line_no, end_line_no = get_line_no_range(
-            file_path,
-            start_date.date(),
-            end_date.date(),
-        )
-        if begin_line_no == 0 or end_line_no == 0:
-            logger.info("line not found")
-            return
-        logger.info(f"Found line range: {begin_line_no}, {end_line_no}")
-
-        logger.info(f"Skipping lines before {begin_line_no}...")
-        pbar_before = pyprind.ProgBar(begin_line_no)
-
-        batch_number = 1000
-        batch_count = int(begin_line_no/batch_number)
-        remain_lines = begin_line_no % batch_number
-        for i in range(0, batch_count):
-            next_n_lines = list(islice(f, batch_number))
-            pbar_before.update(batch_number)
-
-        for i in range(0, remain_lines):
-            next(f)
-            pbar_before.update()
-
-        prog = re.compile(f"{node_path}")
-
-        logger.info(f"Reading lines between {begin_line_no} and {end_line_no}...")
-        pbar_read = pyprind.ProgBar(end_line_no - begin_line_no)
-        for i in range(begin_line_no, end_line_no):
-            pbar_read.update()
-            line = f.readline()
-            line = line.strip()
-
-            result = prog.search(line)
-            if result is None:
-                continue
-
-            parser = EcflowLogParser()
-            record = parser.parse(line)
-            records.append(record)
-
-    return records
 
 
 def analytic_status_point(
@@ -178,14 +123,3 @@ def analytic_status_point_dfa(
     print()
     print(f"Trim Mean ({ratio}):")
     print(pd.to_timedelta(time_series_trim_mean))
-
-
-def generate_in_date_range(start_date, end_date):
-    def in_date_range(record):
-        return start_date <= record.date <= end_date
-    return in_date_range
-
-
-def print_records(records):
-    for r in records:
-        print(r.log_record)
