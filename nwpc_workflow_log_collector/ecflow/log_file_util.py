@@ -54,10 +54,12 @@ def get_line_no_range(
     begin_line_no = 0
     end_line_no = -1
     with open(log_file_path) as log_file:
+        logger.info("finding begin line number for begin_date {}", begin_date)
         cur_first_line_no = 1
         while True:
             next_n_lines = list(islice(log_file, batch_line_no))
             if not next_n_lines:
+                logger.warning("not find begin_date {}, return ({}, {})", begin_date, begin_line_no, end_line_no)
                 return begin_line_no, end_line_no
 
             # if last line less then begin date, skip to next turn.
@@ -81,7 +83,9 @@ def get_line_no_range(
 
             # begin line must be found
             assert begin_line_no >= 0
+            logger.info("found begin line number for begin_date {}: {}", begin_date, begin_line_no)
 
+            logger.info("finding end line number for end_date {}", end_date)
             if end_date is None:
                 end_line_no = cur_first_line_no + len(next_n_lines)
                 cur_first_line_no = end_line_no
@@ -126,10 +130,14 @@ def get_line_no_range(
                 line_date = get_date_from_line(cur_line)
                 if line_date >= end_date:
                     end_line_no = cur_first_line_no + i
+                    logger.info("found end line number for end_date {}: {}", end_date, end_line_no)
                     return begin_line_no, end_line_no
             else:
-                return begin_line_no, cur_first_line_no + len(next_n_lines)
+                end_line_no = cur_first_line_no + len(next_n_lines)
+                logger.info("found end line number for end_date {}: {}", end_date, end_line_no)
+                return begin_line_no, end_line_no
 
+    logger.info("found end line number for end_date {}: {}", end_date, end_line_no)
     return begin_line_no, end_line_no
 
 
