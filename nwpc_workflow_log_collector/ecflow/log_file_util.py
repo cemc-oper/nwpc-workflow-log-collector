@@ -63,12 +63,6 @@ def get_line_no_range(
             # if last line less then begin date, skip to next turn.
             cur_pos = -1
             cur_last_line = next_n_lines[cur_pos]
-            # while (-1 * cur_pos) < len(next_n_lines):
-            #     cur_last_line = next_n_lines[cur_pos]
-            #     if cur_last_line[0] == '#':
-            #         break
-            #     cur_pos -= 1
-
             if begin_date is None:
                 begin_line_no = cur_first_line_no
             else:
@@ -80,8 +74,6 @@ def get_line_no_range(
                 # find first line greater or equal to begin_date
                 for i in range(0, len(next_n_lines)):
                     cur_line = next_n_lines[i]
-                    # if cur_line[0] != '#':
-                    #     continue
                     line_date = get_date_from_line(cur_line)
                     if line_date >= begin_date:
                         begin_line_no = cur_first_line_no + i
@@ -99,8 +91,6 @@ def get_line_no_range(
                 # if begin_line_no == end_line_no, then there is no line returned.
                 for i in range(begin_line_no - 1, len(next_n_lines)):
                     cur_line = next_n_lines[i]
-                    # if cur_line[0] != '#':
-                    #     continue
                     line_date = get_date_from_line(cur_line)
                     if line_date >= end_date:
                         end_line_no = cur_first_line_no + i
@@ -119,12 +109,6 @@ def get_line_no_range(
 
             cur_last_line = next_n_lines[-1]
             cur_pos = -1
-            # while (-1 * cur_pos) < len(next_n_lines):
-            #     cur_last_line = next_n_lines[cur_pos]
-            #     if cur_last_line[0] == '#':
-            #         break
-            #     cur_pos -= 1
-
             if end_date is None:
                 end_line_no = cur_first_line_no + len(next_n_lines)
                 cur_first_line_no = end_line_no
@@ -139,8 +123,6 @@ def get_line_no_range(
             # find end_date
             for i in range(0, len(next_n_lines)):
                 cur_line = next_n_lines[i]
-                # if cur_line[0] != '#':
-                #     continue
                 line_date = get_date_from_line(cur_line)
                 if line_date >= end_date:
                     end_line_no = cur_first_line_no + i
@@ -156,6 +138,7 @@ def get_record_list(
         node_path: str,
         start_date: datetime.datetime,
         end_date: datetime.datetime,
+        show_progress_bar: bool = True,
 ):
     records = []
     with open(file_path) as f:
@@ -171,23 +154,27 @@ def get_record_list(
         logger.info(f"Found line range: {begin_line_no}, {end_line_no}")
 
         logger.info(f"Skipping lines before {begin_line_no}...")
-        progressbar_before = pyprind.ProgBar(begin_line_no)
+        if show_progress_bar:
+            progressbar_before = pyprind.ProgBar(begin_line_no)
 
         batch_number = 1000
         batch_count = int(begin_line_no/batch_number)
         remain_lines = begin_line_no % batch_number
         for i in range(0, batch_count):
             next_n_lines = list(islice(f, batch_number))
-            progressbar_before.update(batch_number)
+            if show_progress_bar:
+                progressbar_before.update(batch_number)
 
         for i in range(0, remain_lines):
             next(f)
-            progressbar_before.update()
+            if show_progress_bar:
+                progressbar_before.update()
 
         prog = re.compile(f"{node_path}")
 
         logger.info(f"Reading lines between {begin_line_no} and {end_line_no}...")
-        progressbar_read = pyprind.ProgBar(end_line_no - begin_line_no)
+        if show_progress_bar:
+            progressbar_read = pyprind.ProgBar(end_line_no - begin_line_no)
         for i in range(begin_line_no, end_line_no):
             progressbar_read.update()
             line = f.readline()
