@@ -51,6 +51,12 @@ def get_line_no_range(
     int, int
         begin line number and end line number, [begin_number, end_number)
     """
+    logger.info("counting total line number...")
+    num_lines = sum(1 for line in open(log_file_path))
+    logger.info("got total line number: {}", num_lines)
+
+    progressbar = pyprind.ProgBar(num_lines)
+
     begin_line_no = 0
     end_line_no = -1
     with open(log_file_path) as log_file:
@@ -58,6 +64,7 @@ def get_line_no_range(
         cur_first_line_no = 1
         while True:
             next_n_lines = list(islice(log_file, batch_line_no))
+            progressbar.update(batch_line_no)
             if not next_n_lines:
                 logger.warning("not find begin_date {}, return ({}, {})", begin_date, begin_line_no, end_line_no)
                 return begin_line_no, end_line_no
@@ -108,6 +115,7 @@ def get_line_no_range(
 
         while True:
             next_n_lines = list(islice(log_file, batch_line_no))
+            progressbar.update(batch_line_no)
             if not next_n_lines:
                 break
 
