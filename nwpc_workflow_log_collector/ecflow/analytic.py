@@ -35,16 +35,7 @@ def analytics_node_log_with_status(
     records = get_record_list(file_path, node_path, start_date, end_date)
     logger.info(f"Getting log lines...Done, {len(records)} lines")
 
-    analytic_status_point_dfa(records, node_path, node_status, start_date, end_date)
 
-
-def analytic_status_point_dfa(
-        records: list,
-        node_path: str,
-        node_status: NodeStatus,
-        start_date: datetime.datetime,
-        end_date: datetime.datetime,
-):
     situations = get_node_situations(
         records=records,
         node_path=node_path,
@@ -52,36 +43,10 @@ def analytic_status_point_dfa(
         end_date=end_date,
     )
 
-    time_series = []
-    for a_situation in situations:
-        current_date = a_situation["date"]
-        current_records = a_situation["records"]
-        if a_situation["state"] is SituationType.Complete:
-            node_situation = a_situation["situation"]
-            time_points = node_situation.time_points
-            point = next((i for i in time_points if i.status == node_status), None)
-            if point is None:
-                logger.warning("[{}] skip: no time point {}", current_date.strftime("%Y-%m-%d"), node_status)
-                print_records(current_records)
-            else:
-                time_length = point.time - current_date
-                time_series.append(time_length)
-                logger.info("[{}] {}", current_date.strftime("%Y-%m-%d"), time_length)
-        else:
-            logger.warning("[{}] skip: DFA is not in complete", current_date.strftime("%Y-%m-%d"))
-            print_records(current_records)
-
-    time_series = pd.Series(time_series)
-    time_series_mean = time_series.mean()
-    print()
-    print("Mean:")
-    print(time_series_mean)
-
-    ratio = 0.25
-    time_series_trim_mean = stats.trim_mean(time_series.values, ratio)
-    print()
-    print(f"Trim Mean ({ratio}):")
-    print(pd.to_timedelta(time_series_trim_mean))
+    calculate_for_node_status(
+        situations=situations,
+        node_status=node_status
+    )
 
 
 def get_node_situations(
@@ -123,3 +88,39 @@ def get_node_situations(
 
     logger.info("Calculating node status change using DFA...Done")
     return situations
+
+
+def calculate_for_node_status(
+        situations: typing.List,
+        node_status: NodeStatus,
+):
+    time_series = []
+    for a_situation in situations:
+        current_date = a_situation["date"]
+        current_records = a_situation["records"]
+        if a_situation["state"] is SituationType.Complete:
+            node_situation = a_situation["situation"]
+            time_points = node_situation.time_points
+            point = next((i for i in time_points if i.status == node_status), None)
+            if point is None:
+                logger.warning("[{}] skip: no time point {}", current_date.strftime("%Y-%m-%d"), node_status)
+                print_records(current_records)
+            else:
+                time_length = point.time - current_date
+                time_series.append(time_length)
+                logger.info("[{}] {}", current_date.strftime("%Y-%m-%d"), time_length)
+        else:
+            logger.warning("[{}] skip: DFA is not in complete", current_date.strftime("%Y-%m-%d"))
+            print_records(current_records)
+
+    time_series = pd.Series(time_series)
+    time_series_mean = time_series.mean()
+    print()
+    print("Mean:")
+    print(time_series_mean)
+
+    ratio = 0.25
+    time_series_trim_mean = stats.trim_mean(time_series.values, ratio)
+    print()
+    print(f"Trim Mean ({ratio}):")
+    print(pd.to_timedelta(time_series_trim_mean))
