@@ -51,7 +51,7 @@ def analytic_status_point_dfa(
             record_list.append(record)
 
     logger.info("Calculating node status change using DFA...")
-    time_series = []
+    situations = []
     for current_date in pd.date_range(start=start_date, end=end_date, closed="left"):
         filter_function = generate_in_date_range(current_date, current_date + pd.Timedelta(days=1))
         current_records = list(filter(lambda x: filter_function(x), record_list))
@@ -68,8 +68,21 @@ def analytic_status_point_dfa(
             if dfa.state is SituationType.Complete:
                 break
 
-        if dfa.state is SituationType.Complete:
-            node_situation = dfa.node_situation
+        situations.append({
+            "date": current_date,
+            "state": dfa.state,
+            "situation": dfa.node_situation,
+            "records": current_records,
+        })
+
+    logger.info("Calculating node status change using DFA...Done")
+
+    time_series = []
+    for a_situation in situations:
+        current_date = a_situation["date"]
+        current_records = a_situation["records"]
+        if a_situation["state"] is SituationType.Complete:
+            node_situation = a_situation["situation"]
             time_points = node_situation.time_points
             point = next((i for i in time_points if i.status == node_status), None)
             if point is None:
