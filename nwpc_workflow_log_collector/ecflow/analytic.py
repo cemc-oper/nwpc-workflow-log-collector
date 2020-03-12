@@ -11,7 +11,7 @@ from nwpc_workflow_log_model.analytics.node_situation import (
     SituationType,
     NodeStatus,
 )
-from nwpc_workflow_log_model.analytics.node_status_change_dfa import NodeStatusChangeDFA
+from nwpc_workflow_log_model.analytics.task_status_change_dfa import TaskStatusChangeDFA
 
 from .log_file_util import get_record_list
 from .util import generate_in_date_range, print_records
@@ -69,7 +69,7 @@ def get_node_situations(
 
         status_changes = [StatusChangeEntry(r) for r in current_records]
 
-        dfa = NodeStatusChangeDFA(name=current_date)
+        dfa = TaskStatusChangeDFA(name=current_date)
 
         for s in status_changes:
             dfa.trigger(

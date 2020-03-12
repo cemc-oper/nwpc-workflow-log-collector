@@ -45,7 +45,7 @@ setup(
         "pyyaml",
         "loguru",
         "click",
-        "nwpc-workflow-log-model>=3.0.0a0,<4",
+        "nwpc-workflow-log-model>=3.0.0a1,<4",
         "pandas",
         "scipy",
         "pyprind",
