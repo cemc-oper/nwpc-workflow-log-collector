@@ -14,28 +14,39 @@ def cli():
 @cli.command("node")
 @click.option("-l", "--log-file", help="log file path")
 @click.option("-n", "--node-path", required=True, help="node path")
-@click.option("-s", "--node-status", default=NodeStatus.submitted.value, help="node path")
-@click.option("--begin-date", default=None, help="begin date, date range: [begin_date, end_date), YYYY-MM-dd")
-@click.option("--end-date", default=None, help="end date, date range: [begin_date, end_date), YYYY-MM-dd")
+@click.option(
+    "-s", "--node-status",
+    default=NodeStatus.submitted.value,
+    type=click.Choice([s.value for s in [
+        NodeStatus.submitted,
+        NodeStatus.queued,
+        NodeStatus.active,
+        NodeStatus.aborted
+    ]]),
+    help="node status",
+)
+@click.option("--node-type", default="task", type=click.Choice(["task", "family"]), help="node type")
+@click.option("--start-date", default=None, help="start date, date range: [start_date, stop_date), YYYY-MM-dd")
+@click.option("--stop-date", default=None, help="stop date, date range: [start_date, stop_date), YYYY-MM-dd")
 @click.option("-v", "--verbose", count=True, help="verbose level")
-def load_range(
+def analytics_node(
         log_file: str,
         node_path: str,
         node_status: str,
-        begin_date: str,
-        end_date: str,
+        start_date: str,
+        stop_date: str,
         verbose: int
 ):
-    begin_date = datetime.datetime.strptime(begin_date, "%Y-%m-%d")
-    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    stop_date = datetime.datetime.strptime(stop_date, "%Y-%m-%d")
     node_status = NodeStatus[node_status]
 
     analytics_task_node_log_with_status(
         log_file,
         node_path,
         node_status,
-        begin_date,
-        end_date,
+        start_date,
+        stop_date,
         verbose,
     )
 
