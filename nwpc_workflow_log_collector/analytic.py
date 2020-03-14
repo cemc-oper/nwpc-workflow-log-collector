@@ -2,7 +2,10 @@ import datetime
 
 import click
 
-from nwpc_workflow_log_collector.ecflow.analytic import analytics_task_node_log_with_status
+from nwpc_workflow_log_collector.ecflow.analytic import (
+    analytics_task_node_log_with_status,
+    analytics_family_node_log_with_status,
+)
 from nwpc_workflow_model.node_status import NodeStatus
 
 
@@ -21,7 +24,8 @@ def cli():
         NodeStatus.submitted,
         NodeStatus.queued,
         NodeStatus.active,
-        NodeStatus.aborted
+        NodeStatus.aborted,
+        NodeStatus.complete,
     ]]),
     help="node status",
 )
@@ -32,6 +36,7 @@ def cli():
 def analytics_node(
         log_file: str,
         node_path: str,
+        node_type: str,
         node_status: str,
         start_date: str,
         stop_date: str,
@@ -41,14 +46,24 @@ def analytics_node(
     stop_date = datetime.datetime.strptime(stop_date, "%Y-%m-%d")
     node_status = NodeStatus[node_status]
 
-    analytics_task_node_log_with_status(
-        log_file,
-        node_path,
-        node_status,
-        start_date,
-        stop_date,
-        verbose,
-    )
+    if node_type == "task":
+        analytics_task_node_log_with_status(
+            log_file,
+            node_path,
+            node_status,
+            start_date,
+            stop_date,
+            verbose,
+        )
+    elif node_type == "family":
+        analytics_family_node_log_with_status(
+            log_file,
+            node_path,
+            node_status,
+            start_date,
+            stop_date,
+            verbose,
+        )
 
 
 if __name__ == "__main__":
