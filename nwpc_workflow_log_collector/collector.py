@@ -85,16 +85,16 @@ def load(config, owner, repo, workflow_type, log_file, verbose):
     type=click.Choice(["sms", "ecflow"]),
 )
 @click.option("-l", "--log-file", help="log file path")
-@click.option("--begin-date", default=None, help="begin date, date range: [begin_date, end_date), YYYY-MM-dd")
-@click.option("--end-date", default=None, help="end date, date range: [begin_date, end_date), YYYY-MM-dd")
+@click.option("--start-date", default=None, help="begin date, date range: [start_date, stop_date), YYYY-MM-dd")
+@click.option("--stop-date", default=None, help="end date, date range: [start_date, stop_date), YYYY-MM-dd")
 @click.option("-v", "--verbose", count=True, help="verbose level")
 def load_range(
-    config, owner, repo, workflow_type, log_file, begin_date, end_date, verbose
+    config, owner, repo, workflow_type, log_file, start_date, stop_date, verbose
 ):
     config_object = load_config(config)
     collector_module = get_collector_module(workflow_type)
     collector_module.collect_log_from_local_file_by_range(
-        config_object, owner, repo, log_file, begin_date, end_date, verbose
+        config_object, owner, repo, log_file, start_date, stop_date, verbose
     )
 
 

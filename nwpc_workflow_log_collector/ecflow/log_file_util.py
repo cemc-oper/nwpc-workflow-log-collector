@@ -28,21 +28,21 @@ def is_record_line(log_line: str) -> bool:
 
 def get_line_no_range(
     log_file_path: str,
-    begin_date: datetime.date = None,
-    end_date: datetime.date = None,
+    start_date: datetime.date = None,
+    stop_date: datetime.date = None,
     batch_line_no: int = 1000,
 ) -> (int, int):
     """
-    Get line number range in [begin_date, end_date)
+    Get line number range in [start_date, stop_date)
 
     Parameters
     ----------
     log_file_path: str
         log file path
-    begin_date: datetime.date
-        begin date, [begin_date, end_date)
-    end_date: datetime.date
-        end date, [begin_date, end_date)
+    start_date: datetime.date
+        begin date, [start_date, stop_date)
+    stop_date: datetime.date
+        end date, [start_date, stop_date)
     batch_line_no: int
         number of log lines in one read
 
@@ -60,50 +60,50 @@ def get_line_no_range(
     begin_line_no = 0
     end_line_no = -1
     with open(log_file_path) as log_file:
-        logger.info("finding begin line number for begin_date {}", begin_date)
+        logger.info("finding begin line number for start_date {}", start_date)
         cur_first_line_no = 1
         while True:
             next_n_lines = list(islice(log_file, batch_line_no))
             progressbar.update(batch_line_no)
             if not next_n_lines:
-                logger.warning("not find begin_date {}, return ({}, {})", begin_date, begin_line_no, end_line_no)
+                logger.warning("not find start_date {}, return ({}, {})", start_date, begin_line_no, end_line_no)
                 return begin_line_no, end_line_no
 
             # if last line less then begin date, skip to next turn.
             cur_pos = -1
             cur_last_line = next_n_lines[cur_pos]
-            if begin_date is None:
+            if start_date is None:
                 begin_line_no = cur_first_line_no
             else:
                 line_date = get_date_from_line(cur_last_line)
-                if line_date < begin_date:
+                if line_date < start_date:
                     cur_first_line_no = cur_first_line_no + len(next_n_lines)
                     continue
 
-                # find first line greater or equal to begin_date
+                # find first line greater or equal to start_date
                 for i in range(0, len(next_n_lines)):
                     cur_line = next_n_lines[i]
                     line_date = get_date_from_line(cur_line)
-                    if line_date >= begin_date:
+                    if line_date >= start_date:
                         begin_line_no = cur_first_line_no + i
                         break
 
             # begin line must be found
             assert begin_line_no >= 0
-            logger.info("found begin line number for begin_date {}: {}", begin_date, begin_line_no)
+            logger.info("found begin line number for start_date {}: {}", start_date, begin_line_no)
 
-            logger.info("finding end line number for end_date {}", end_date)
-            if end_date is None:
+            logger.info("finding end line number for stop_date {}", stop_date)
+            if stop_date is None:
                 end_line_no = cur_first_line_no + len(next_n_lines)
                 cur_first_line_no = end_line_no
                 break
             else:
-                # check if some line greater or equal to end_date,
+                # check if some line greater or equal to stop_date,
                 # if begin_line_no == end_line_no, then there is no line returned.
                 for i in range(begin_line_no - 1, len(next_n_lines)):
                     cur_line = next_n_lines[i]
                     line_date = get_date_from_line(cur_line)
-                    if line_date >= end_date:
+                    if line_date >= stop_date:
                         end_line_no = cur_first_line_no + i
                         if begin_line_no == end_line_no:
                             begin_line_no = 0
@@ -121,31 +121,31 @@ def get_line_no_range(
 
             cur_last_line = next_n_lines[-1]
             cur_pos = -1
-            if end_date is None:
+            if stop_date is None:
                 end_line_no = cur_first_line_no + len(next_n_lines)
                 cur_first_line_no = end_line_no
                 continue
 
-            # if last line less than end_date, skip to next run
+            # if last line less than stop_date, skip to next run
             line_date = get_date_from_line(cur_last_line)
-            if line_date < end_date:
+            if line_date < stop_date:
                 cur_first_line_no = cur_first_line_no + len(next_n_lines)
                 continue
 
-            # find end_date
+            # find stop_date
             for i in range(0, len(next_n_lines)):
                 cur_line = next_n_lines[i]
                 line_date = get_date_from_line(cur_line)
-                if line_date >= end_date:
+                if line_date >= stop_date:
                     end_line_no = cur_first_line_no + i
-                    logger.info("found end line number for end_date {}: {}", end_date, end_line_no)
+                    logger.info("found end line number for stop_date {}: {}", stop_date, end_line_no)
                     return begin_line_no, end_line_no
             else:
                 end_line_no = cur_first_line_no + len(next_n_lines)
-                logger.info("found end line number for end_date {}: {}", end_date, end_line_no)
+                logger.info("found end line number for stop_date {}: {}", stop_date, end_line_no)
                 return begin_line_no, end_line_no
 
-    logger.info("found end line number for end_date {}: {}", end_date, end_line_no)
+    logger.info("found end line number for stop_date {}: {}", stop_date, end_line_no)
     return begin_line_no, end_line_no
 
 
@@ -153,16 +153,16 @@ def get_record_list(
         file_path: str,
         node_path: str,
         start_date: datetime.datetime,
-        end_date: datetime.datetime,
+        stop_date: datetime.datetime,
         show_progress_bar: bool = True,
 ):
     records = []
     with open(file_path) as f:
-        logger.info(f"Finding line range in date range: {start_date}, {end_date}")
+        logger.info(f"Finding line range in date range: {start_date}, {stop_date}")
         begin_line_no, end_line_no = get_line_no_range(
             file_path,
             start_date.date(),
-            end_date.date(),
+            stop_date.date(),
         )
         if begin_line_no == 0 or end_line_no == 0:
             logger.info("line not found")

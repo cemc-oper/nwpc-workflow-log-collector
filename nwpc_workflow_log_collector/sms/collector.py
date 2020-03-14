@@ -96,7 +96,7 @@ def collect_log_from_local_file_by_range(
     repo_name: str,
     file_path: str,
     start_date,
-    end_date,
+    stop_date,
     verbose,
 ):
     session = get_session(config["collector"]["rdbms"]["database_uri"])
@@ -108,11 +108,11 @@ def collect_log_from_local_file_by_range(
         )
         SmsRecord.prepare(owner_name, repo_name)
 
-        print("Finding line no in range:", start_date, end_date)
+        print("Finding line no in range:", start_date, stop_date)
         begin_line_no, end_line_no = get_line_no_range(
             file_path,
             datetime.datetime.strptime(start_date, "%Y-%m-%d").date(),
-            datetime.datetime.strptime(end_date, "%Y-%m-%d").date(),
+            datetime.datetime.strptime(stop_date, "%Y-%m-%d").date(),
         )
         if begin_line_no == 0 or end_line_no == 0:
             logger.info("line not found")

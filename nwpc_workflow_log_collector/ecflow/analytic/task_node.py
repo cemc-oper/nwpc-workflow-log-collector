@@ -23,24 +23,24 @@ def analytics_task_node_log_with_status(
         node_path: str,
         node_status: NodeStatus,
         start_date: datetime.datetime,
-        end_date: datetime.datetime,
+        stop_date: datetime.datetime,
         verbose: int,
 ):
     logger.info(f"Analytic time points")
     logger.info(f"\tnode_path: {node_path}")
     logger.info(f"\tnode_status: {node_status}")
     logger.info(f"\tstart_date: {start_date}")
-    logger.info(f"\tend_date: {end_date}")
+    logger.info(f"\tend_date: {stop_date}")
 
     logger.info(f"Getting log lines...")
-    records = get_record_list(file_path, node_path, start_date, end_date)
+    records = get_record_list(file_path, node_path, start_date, stop_date)
     logger.info(f"Getting log lines...Done, {len(records)} lines")
 
     situations = get_task_node_situations(
         records=records,
         node_path=node_path,
         start_date=start_date,
-        end_date=end_date,
+        end_date=stop_date,
     )
 
     calculate_for_task_node_status(

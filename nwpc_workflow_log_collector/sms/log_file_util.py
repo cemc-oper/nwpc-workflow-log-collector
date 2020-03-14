@@ -44,7 +44,7 @@ def get_line_no_range(
                 cur_first_line_no = cur_first_line_no + len(next_n_lines)
                 continue
 
-            # find first line greater or equal to begin_date
+            # find first line greater or equal to start_date
             for i in range(0, len(next_n_lines)):
                 cur_line = next_n_lines[i]
                 if not is_record_line(cur_line):
@@ -57,7 +57,7 @@ def get_line_no_range(
             # begin line must be found
             assert begin_line_no > 0
 
-            # check if some line greater or equal to end_date,
+            # check if some line greater or equal to stop_date,
             # if begin_line_no == end_line_no, then there is no line returned.
             for i in range(begin_line_no - 1, len(next_n_lines)):
                 cur_line = next_n_lines[i]
@@ -87,13 +87,13 @@ def get_line_no_range(
                     break
                 cur_pos -= 1
 
-            # if last line less than end_date, skip to next run
+            # if last line less than stop_date, skip to next run
             line_date = get_date_from_line(cur_last_line)
             if line_date < end_date:
                 cur_first_line_no = cur_first_line_no + len(next_n_lines)
                 continue
 
-            # find end_date
+            # find stop_date
             for i in range(0, len(next_n_lines)):
                 cur_line = next_n_lines[i]
                 if not is_record_line(cur_line):
