@@ -8,7 +8,7 @@ from scipy import stats
 from nwpc_workflow_log_model.log_record.ecflow import StatusLogRecord
 from nwpc_workflow_log_model.log_record.ecflow.status_record import StatusChangeEntry
 from nwpc_workflow_log_model.analytics.node_situation import (
-    SituationType,
+    TaskSituationType,
     NodeStatus,
 )
 from nwpc_workflow_log_model.analytics.task_status_change_dfa import TaskStatusChangeDFA
@@ -76,7 +76,7 @@ def get_node_situations(
                 s.status.value,
                 node_data=s,
             )
-            if dfa.state is SituationType.Complete:
+            if dfa.state is TaskSituationType.Complete:
                 break
 
         situations.append({
@@ -98,7 +98,7 @@ def calculate_for_node_status(
     for a_situation in situations:
         current_date = a_situation["date"]
         current_records = a_situation["records"]
-        if a_situation["state"] is SituationType.Complete:
+        if a_situation["state"] is TaskSituationType.Complete:
             node_situation = a_situation["situation"]
             time_points = node_situation.time_points
             point = next((i for i in time_points if i.status == node_status), None)
