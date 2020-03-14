@@ -1,23 +1,24 @@
 import datetime
 import typing
 
-from loguru import logger
 import pandas as pd
+from loguru import logger
 from scipy import stats
+
+from nwpc_workflow_model.node_status import NodeStatus
 
 from nwpc_workflow_log_model.log_record.ecflow import StatusLogRecord
 from nwpc_workflow_log_model.log_record.ecflow.status_record import StatusChangeEntry
-from nwpc_workflow_log_model.analytics.node_situation import (
+from nwpc_workflow_log_model.analytics.task_status_change_dfa import (
+    TaskStatusChangeDFA,
     TaskSituationType,
-    NodeStatus,
 )
-from nwpc_workflow_log_model.analytics.task_status_change_dfa import TaskStatusChangeDFA
 
-from .log_file_util import get_record_list
-from .util import generate_in_date_range, print_records
+from nwpc_workflow_log_collector.ecflow.log_file_util import get_record_list
+from nwpc_workflow_log_collector.ecflow.util import generate_in_date_range, print_records
 
 
-def analytics_node_log_with_status(
+def analytics_task_node_log_with_status(
         file_path: str,
         node_path: str,
         node_status: NodeStatus,
@@ -35,21 +36,20 @@ def analytics_node_log_with_status(
     records = get_record_list(file_path, node_path, start_date, end_date)
     logger.info(f"Getting log lines...Done, {len(records)} lines")
 
-
-    situations = get_node_situations(
+    situations = get_task_node_situations(
         records=records,
         node_path=node_path,
         start_date=start_date,
         end_date=end_date,
     )
 
-    calculate_for_node_status(
+    calculate_for_task_node_status(
         situations=situations,
         node_status=node_status
     )
 
 
-def get_node_situations(
+def get_task_node_situations(
         records: list,
         node_path: str,
         start_date: datetime.datetime,
@@ -90,7 +90,7 @@ def get_node_situations(
     return situations
 
 
-def calculate_for_node_status(
+def calculate_for_task_node_status(
         situations: typing.List,
         node_status: NodeStatus,
 ):

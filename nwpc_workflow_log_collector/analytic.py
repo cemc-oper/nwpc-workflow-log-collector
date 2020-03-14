@@ -2,7 +2,7 @@ import datetime
 
 import click
 
-from nwpc_workflow_log_collector.ecflow.analytic import analytics_node_log_with_status
+from nwpc_workflow_log_collector.ecflow.analytic import analytics_task_node_log_with_status
 from nwpc_workflow_model.node_status import NodeStatus
 
 
@@ -30,7 +30,7 @@ def load_range(
     end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
     node_status = NodeStatus[node_status]
 
-    analytics_node_log_with_status(
+    analytics_task_node_log_with_status(
         log_file,
         node_path,
         node_status,
