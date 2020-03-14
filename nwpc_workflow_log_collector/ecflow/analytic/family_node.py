@@ -69,7 +69,10 @@ def get_family_node_situations(
 
         status_changes = [StatusChangeEntry(r) for r in current_records]
 
-        dfa = FamilyStatusChangeDFA(name=current_date)
+        dfa = FamilyStatusChangeDFA(
+            name=current_date,
+            ignore_aborted=True,
+        )
 
         for s in status_changes:
             dfa.trigger(
