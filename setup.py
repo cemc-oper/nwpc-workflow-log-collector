@@ -45,7 +45,7 @@ setup(
         "pyyaml",
         "loguru",
         "click",
-        "nwpc-workflow-log-model>=3.0.0a2,<3.0.0",
+        "nwpc-workflow-log-model>=3.0.0a2,<3.0.1",
         "pandas",
         "scipy",
         "pyprind",
@@ -59,7 +59,6 @@ setup(
     entry_points={
         "console_scripts": [
             "workflow_log_collector = nwpc_workflow_log_collector.collector:cli",
-            "workflow_log_analytic = nwpc_workflow_log_collector.analytic:cli",
         ],
     }
 )
