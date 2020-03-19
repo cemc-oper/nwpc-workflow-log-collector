@@ -181,7 +181,7 @@ def get_record_list(
             if show_progress_bar:
                 progressbar_before.update(batch_number)
 
-        for i in range(0, remain_lines):
+        for i in range(0, remain_lines-1):
             next(f)
             if show_progress_bar:
                 progressbar_before.update()
