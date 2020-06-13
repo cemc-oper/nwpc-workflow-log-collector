@@ -1,6 +1,7 @@
 import datetime
 
 from loguru import logger
+
 from nwpc_workflow_log_model.rmdb.ecflow.record import EcflowRecord
 from nwpc_workflow_log_model.rmdb.util.session import get_session
 from nwpc_workflow_log_model.rmdb.util.version_util import VersionUtil

@@ -1,14 +1,27 @@
 import datetime
 import re
 from itertools import islice
+import typing
 
 import pyprind
 from loguru import logger
-from nwpc_workflow_log_model.log_record.ecflow import EcflowLogParser
+import pandas as pd
+
+from nwpc_workflow_log_model.log_record.ecflow import EcflowLogParser, EcflowLogRecord
 
 
 def get_date_from_line(line: str) -> datetime.date:
     """
+    Parameters
+    ----------
+    line: str
+        log line
+
+    Returns
+    -------
+    datetime.date:
+        date of log line
+
     Examples
     --------
     >>> get_date_from_line("LOG:[12:34:57 1.3.2020]  active: /grapes_meso_3km_post")
@@ -28,20 +41,20 @@ def is_record_line(log_line: str) -> bool:
 
 def get_line_no_range(
     log_file_path: str,
-    start_date: datetime.date = None,
-    stop_date: datetime.date = None,
+    start_date: datetime.date or datetime.datetime or pd.Timestamp = None,
+    stop_date: datetime.date or datetime.datetime or pd.Timestamp = None,
     batch_line_no: int = 1000,
 ) -> (int, int):
     """
-    Get line number range in [start_date, stop_date)
+    Get line number range in date range [start_date, stop_date)
 
     Parameters
     ----------
     log_file_path: str
         log file path
-    start_date: datetime.date
+    start_date: datetime.date or datetime.datetime or pd.Timestamp
         begin date, [start_date, stop_date)
-    stop_date: datetime.date
+    stop_date: datetime.date or datetime.datetime or pd.Timestamp
         end date, [start_date, stop_date)
     batch_line_no: int
         number of log lines in one read
@@ -50,7 +63,21 @@ def get_line_no_range(
     -------
     int, int
         begin line number and end line number, [begin_number, end_number)
+
+    Examples
+    --------
+    get lines
+
+    >>> get_line_no_range(
+    ...     log_file_path="./fcst.txt",
+    ...     start_date=datetime.date(2020, 6, 1),
+    ...     stop_date=datetime.date(2020, 6, 13),
+    ...   )
+    (3446, 6597)
     """
+    start_date = _parse_date_option(start_date)
+    stop_date = _parse_date_option(stop_date)
+
     logger.info("counting total line number...")
     num_lines = sum(1 for line in open(log_file_path))
     logger.info("got total line number: {}", num_lines)
@@ -60,13 +87,13 @@ def get_line_no_range(
     begin_line_no = 0
     end_line_no = -1
     with open(log_file_path) as log_file:
-        logger.info("finding begin line number for start_date {}", start_date)
+        logger.info(f"finding begin line number for start_date: {start_date}")
         cur_first_line_no = 1
         while True:
             next_n_lines = list(islice(log_file, batch_line_no))
             progressbar.update(batch_line_no)
             if not next_n_lines:
-                logger.warning("not find start_date {}, return ({}, {})", start_date, begin_line_no, end_line_no)
+                logger.warning(f"not find start_date {start_date}, return ({begin_line_no}, {end_line_no})")
                 return begin_line_no, end_line_no
 
             # if last line less then begin date, skip to next turn.
@@ -90,9 +117,9 @@ def get_line_no_range(
 
             # begin line must be found
             assert begin_line_no >= 0
-            logger.info("found begin line number for start_date {}: {}", start_date, begin_line_no)
+            logger.info(f"found begin line number for start_date {start_date}: {begin_line_no}")
 
-            logger.info("finding end line number for stop_date {}", stop_date)
+            logger.info(f"finding end line number for stop_date {stop_date}")
             if stop_date is None:
                 end_line_no = cur_first_line_no + len(next_n_lines)
                 cur_first_line_no = end_line_no
@@ -139,35 +166,38 @@ def get_line_no_range(
                 current_line_date = get_date_from_line(cur_line)
                 if current_line_date >= stop_date:
                     end_line_no = cur_first_line_no + i
-                    logger.info("found end line number for stop_date {}: {}", stop_date, end_line_no)
+                    logger.info(f"found end line number for stop_date {stop_date}: {end_line_no}")
                     return begin_line_no, end_line_no
             else:
                 end_line_no = cur_first_line_no + len(next_n_lines)
-                logger.info("found end line number for stop_date {}: {}", stop_date, end_line_no)
+                logger.info(f"found end line number for stop_date {stop_date}: {end_line_no}")
                 return begin_line_no, end_line_no
 
-    logger.info("found end line number for stop_date {}: {}", stop_date, end_line_no)
+    logger.info(f"found end line number for stop_date {stop_date}: {end_line_no}")
     return begin_line_no, end_line_no
 
 
 def get_record_list(
         file_path: str,
         node_path: str,
-        start_date: datetime.datetime,
-        stop_date: datetime.datetime,
+        start_date: datetime.datetime or datetime.date or pd.Timestamp,
+        stop_date: datetime.datetime or datetime.date or pd.Timestamp,
         show_progress_bar: bool = True,
-):
+) -> typing.List[EcflowLogRecord] or None:
+    start_date = _parse_date_option(start_date)
+    stop_date = _parse_date_option(stop_date)
+
     records = []
     with open(file_path) as f:
         logger.info(f"Finding line range in date range: {start_date}, {stop_date}")
         begin_line_no, end_line_no = get_line_no_range(
             file_path,
-            start_date.date(),
-            stop_date.date(),
+            start_date,
+            stop_date,
         )
         if begin_line_no == 0 or end_line_no == 0:
             logger.info("line not found")
-            return
+            return None
         logger.info(f"Found line range: {begin_line_no}, {end_line_no}")
 
         logger.info(f"Skipping lines before {begin_line_no}...")
@@ -206,3 +236,14 @@ def get_record_list(
             records.append(record)
 
     return records
+
+
+def _parse_date_option(
+        date_option: datetime.date or datetime.datetime or pd.Timestamp
+) -> datetime.date:
+    if isinstance(date_option, datetime.datetime):
+        return date_option.date()
+    elif isinstance(date_option, pd.Timestamp):
+        return date_option.date()
+    else:
+        return date_option
