@@ -75,16 +75,16 @@ def get_line_no_range(
             if start_date is None:
                 begin_line_no = cur_first_line_no
             else:
-                line_date = get_date_from_line(cur_last_line)
-                if line_date < start_date:
+                current_line_date = get_date_from_line(cur_last_line)
+                if current_line_date < start_date:
                     cur_first_line_no = cur_first_line_no + len(next_n_lines)
                     continue
 
                 # find first line greater or equal to start_date
                 for i in range(0, len(next_n_lines)):
                     cur_line = next_n_lines[i]
-                    line_date = get_date_from_line(cur_line)
-                    if line_date >= start_date:
+                    current_line_date = get_date_from_line(cur_line)
+                    if current_line_date >= start_date:
                         begin_line_no = cur_first_line_no + i
                         break
 
@@ -100,10 +100,10 @@ def get_line_no_range(
             else:
                 # check if some line greater or equal to stop_date,
                 # if begin_line_no == end_line_no, then there is no line returned.
-                for i in range(begin_line_no - 1, len(next_n_lines)):
+                for i in range(cur_first_line_no - 1, len(next_n_lines)):
                     cur_line = next_n_lines[i]
-                    line_date = get_date_from_line(cur_line)
-                    if line_date >= stop_date:
+                    current_line_date = get_date_from_line(cur_line)
+                    if current_line_date >= stop_date:
                         end_line_no = cur_first_line_no + i
                         if begin_line_no == end_line_no:
                             begin_line_no = 0
@@ -127,16 +127,17 @@ def get_line_no_range(
                 continue
 
             # if last line less than stop_date, skip to next run
-            line_date = get_date_from_line(cur_last_line)
-            if line_date < stop_date:
+            current_line_date = get_date_from_line(cur_last_line)
+            if current_line_date < stop_date:
                 cur_first_line_no = cur_first_line_no + len(next_n_lines)
+                end_line_no = cur_first_line_no + len(next_n_lines)
                 continue
 
             # find stop_date
             for i in range(0, len(next_n_lines)):
                 cur_line = next_n_lines[i]
-                line_date = get_date_from_line(cur_line)
-                if line_date >= stop_date:
+                current_line_date = get_date_from_line(cur_line)
+                if current_line_date >= stop_date:
                     end_line_no = cur_first_line_no + i
                     logger.info("found end line number for stop_date {}: {}", stop_date, end_line_no)
                     return begin_line_no, end_line_no
