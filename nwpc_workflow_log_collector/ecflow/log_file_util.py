@@ -178,20 +178,59 @@ def get_line_no_range(
 
 
 def get_record_list(
-        file_path: str,
+        log_file_path: str,
         node_path: str,
         start_date: datetime.datetime or datetime.date or pd.Timestamp,
         stop_date: datetime.datetime or datetime.date or pd.Timestamp,
         show_progress_bar: bool = True,
 ) -> typing.List[EcflowLogRecord] or None:
+    """
+    Get records list within date range [start_date, stop_date) from log file.
+
+    Parameters
+    ----------
+    log_file_path: str
+        log file path
+    node_path: str
+        node path in ecFlow, such as /grapes_meso_3km_v4_4/00/model/fcst
+    start_date: datetime.datetime or datetime.date or pd.Timestamp
+        start date, [start date, stop_date)
+    stop_date: datetime.datetime or datetime.date or pd.Timestamp
+        stop date, [start_date, stop_date)
+    show_progress_bar: bool
+        if True, progress bar is shown.
+
+    Returns
+    -------
+    typing.List[EcflowLogRecord] or None:
+        return a list or EcflowLogRecord, or None if no record is found.
+
+    Examples
+    --------
+    Get log records for GRAPES MESO 3KM model forecast task.
+
+    >>> get_record_list(
+    ...     "playground/ecflow/fcst.txt",
+    ...     node_path="/grapes_meso_3km_v4_4/00/model/fcst",
+    ...     start_date=datetime.date(2020, 6, 1),
+    ...     stop_date=datetime.date(2020, 6, 13),
+    ... )
+    [[StatusLogRecord] LOG:[04:36:51 1.6.2020]  submitted: /grapes_meso_3km_v4_4/00/model/fcst job_size:5267,
+     [ChildLogRecord] MSG:[04:36:52 1.6.2020] chd:init /grapes_meso_3km_v4_4/00/model/fcst,
+     [StatusLogRecord] LOG:[04:36:52 1.6.2020]  active: /grapes_meso_3km_v4_4/00/model/fcst,
+     ...skip...
+     [StatusLogRecord] LOG:[05:51:28 12.6.2020]  complete: /grapes_meso_3km_v4_4/00/model/fcst_monitor,
+     [StatusLogRecord] LOG:[23:45:36 12.6.2020]  queued: /grapes_meso_3km_v4_4/00/model/fcst,
+     [StatusLogRecord] LOG:[23:45:36 12.6.2020]  queued: /grapes_meso_3km_v4_4/00/model/fcst_monitor]
+    """
     start_date = _parse_date_option(start_date)
     stop_date = _parse_date_option(stop_date)
 
     records = []
-    with open(file_path) as f:
+    with open(log_file_path) as f:
         logger.info(f"Finding line range in date range: {start_date}, {stop_date}")
         begin_line_no, end_line_no = get_line_no_range(
-            file_path,
+            log_file_path,
             start_date,
             stop_date,
         )
