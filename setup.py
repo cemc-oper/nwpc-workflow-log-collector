@@ -18,7 +18,7 @@ setup(
 
     version=version,
 
-    description='Log collectors for workflow log in NWPC.',
+    description='Log collectors for workflow tools using in NWPC/CMA.',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
@@ -47,6 +47,7 @@ setup(
         "click",
         "nwpc-workflow-log-model>=3.0.0a2,<3.0.1",
         "pandas",
+        "numpy",
         "scipy",
         "pyprind",
     ],

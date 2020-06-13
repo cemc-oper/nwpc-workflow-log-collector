@@ -1,7 +1,8 @@
 # nwpc-workflow-log-collector
 
-Log collectors for workflow log in NWPC.
-Support ecFlow and SMS.
+Log collectors for workflow tools using in NWPC/CMA.
+
+Support ecFlow and SMS. Note: SMS is deprecated in NWPC/CMA. 
 
 ## Getting started
 
