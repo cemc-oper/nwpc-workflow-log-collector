@@ -45,11 +45,11 @@ setup(
         "pyyaml",
         "loguru",
         "click",
-        "nwpc-workflow-log-model>=3.0.0a2,<3.0.1",
+        "nwpc-workflow-log-model>=3.0.0a3,<3.0.1",
         "pandas",
         "numpy",
         "scipy",
-        "pyprind",
+        "tqdm",
     ],
 
     extras_require={

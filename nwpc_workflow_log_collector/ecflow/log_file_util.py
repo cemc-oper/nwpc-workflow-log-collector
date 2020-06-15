@@ -3,7 +3,7 @@ import re
 from itertools import islice
 import typing
 
-import pyprind
+from tqdm import tqdm
 from loguru import logger
 import pandas as pd
 
@@ -82,7 +82,7 @@ def get_line_no_range(
     num_lines = sum(1 for line in open(log_file_path))
     logger.info("got total line number: {}", num_lines)
 
-    progressbar = pyprind.ProgBar(num_lines)
+    progressbar = tqdm(total=num_lines)
 
     begin_line_no = 0
     end_line_no = -1
@@ -183,6 +183,7 @@ def get_record_list(
         start_date: datetime.datetime or datetime.date or pd.Timestamp,
         stop_date: datetime.datetime or datetime.date or pd.Timestamp,
         show_progress_bar: bool = True,
+        parser_kwargs: dict = None,
 ) -> typing.List[EcflowLogRecord] or None:
     """
     Get records list within date range [start_date, stop_date) from log file.
@@ -199,6 +200,8 @@ def get_record_list(
         stop date, [start_date, stop_date)
     show_progress_bar: bool
         if True, progress bar is shown.
+    parser_kwargs: dict
+        additional arguments for EcflowLogParser.
 
     Returns
     -------
@@ -241,7 +244,7 @@ def get_record_list(
 
         logger.info(f"Skipping lines before {begin_line_no}...")
         if show_progress_bar:
-            progressbar_before = pyprind.ProgBar(begin_line_no)
+            progressbar_before = tqdm(total=begin_line_no)
 
         batch_number = 1000
         batch_count = int(begin_line_no/batch_number)
@@ -260,7 +263,7 @@ def get_record_list(
 
         logger.info(f"Reading lines between {begin_line_no} and {end_line_no}...")
         if show_progress_bar:
-            progressbar_read = pyprind.ProgBar(end_line_no - begin_line_no)
+            progressbar_read = tqdm(total=end_line_no - begin_line_no)
         for i in range(begin_line_no, end_line_no):
             progressbar_read.update()
             line = f.readline()
@@ -269,10 +272,12 @@ def get_record_list(
             result = prog.search(line)
             if result is None:
                 continue
-
-            parser = EcflowLogParser()
+            if parser_kwargs is None:
+                parser_kwargs = {}
+            parser = EcflowLogParser(**parser_kwargs)
             record = parser.parse(line)
-            records.append(record)
+            if record is not None:
+                records.append(record)
 
     return records
 
